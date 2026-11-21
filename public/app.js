@@ -570,7 +570,7 @@ function cryptogramGame(){
 
 const wordOfDayPuzzles=[
   {word:"laberinto",clues:["No siempre tiene paredes, pero puede hacerte perder el rumbo.","Tiene caminos, bifurcaciones y una salida que debes encontrar.","Empieza por L y termina en O."],definition:"Un recorrido complejo con caminos y pasajes que confunden."},
-  {word:"brujula",clues:["No te dice dónde estás, sino hacia dónde orientar tus pasos.","Su aguja busca una dirección constante.","Tiene ocho letras y comienza por B."],definition:"Instrumento que señala el norte magnético."},
+  {word:"brujula",clues:["No te dice dónde estás, sino hacia dónde orientar tus pasos.","Su aguja busca una dirección constante.","Tiene siete letras y comienza por B."],definition:"Instrumento que señala el norte magnético."},
   {word:"paradoja",clues:["Parece contradecirse, pero invita a pensar.","Puede ser una afirmación aparentemente imposible.","Tiene ocho letras y comienza por P."],definition:"Idea que contiene una contradicción aparente."},
   {word:"umbral",clues:["Puedes cruzarlo sin salir de una habitación.","Marca el comienzo o la entrada de algo.","Tiene seis letras y empieza por U."],definition:"Entrada o límite que da paso a otro espacio o estado."},
   {word:"efimero",clues:["Su duración es tan corta que puede desaparecer antes de apreciarlo.","Se opone a lo permanente.","Tiene siete letras y comienza por E."],definition:"Algo que dura muy poco tiempo."}
