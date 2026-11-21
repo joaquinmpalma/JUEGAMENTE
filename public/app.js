@@ -614,7 +614,7 @@ function crosswordGame(){
 
 const storyMath = [
 [
-{q:"En la cocina, Pepito tenía 14 manzanas para preparar colaciones. Ana tomó 6 para su grupo y después la profesora dejó otras 3 en la mesa. ¿Cuántas manzanas quedaron para Pepito?",a:"11",ex:"14 − 6 + 3 = 11 manzanas."},
+{q:"En la cocina, Pepito tenía 14 manzanas para preparar colaciones. Ana tomó 6 para su grupo y después la profesora le entregó otras 3. ¿Cuántas manzanas tiene ahora?",a:"11",ex:"14 − 6 + 3 = 11 manzanas."},
 {q:"Una caja contiene 8 paquetes con 5 lápices cada uno. Durante la clase se reparten 13 lápices. ¿Cuántos lápices quedan?",a:"27",ex:"8 × 5 = 40; 40 − 13 = 27 lápices."},
 {q:"En una excursión, 23 estudiantes suben a un bus. En la siguiente parada bajan 7 y suben 4. ¿Cuántos estudiantes continúan?",a:"20",ex:"23 − 7 + 4 = 20 estudiantes."}
 ],
@@ -727,7 +727,7 @@ categoryHubs.daily.items=[
 ];
 function wordMixGame(){
  const p=wordOfDayPuzzles[Math.floor((Date.now()/86400000)%wordOfDayPuzzles.length)];
- const letters=p.word.toUpperCase().split("").sort(()=>Math.random()-.5);
+ let letters=p.word.toUpperCase().split("").sort(()=>Math.random()-.5);while(letters.join("")===p.word.toUpperCase()){letters=p.word.toUpperCase().split("").sort(()=>Math.random()-.5);}
  let attempts=0;
  setGame("Palabra del día · Letras ocultas","Las letras están mezcladas. La definición es deliberadamente indirecta: encuentra la palabra del día.",'<div class="game-meta"><span>Intentos <b id="mix-attempts">0</b>/5</span><span>Longitud: '+letters.length+'</span></div><div class="word-scramble" id="mix-letters">'+letters.join(" · ")+'</div><p class="game-hint">'+p.clues[0]+'</p>'+textAnswerForm("Reconstruye la palabra"));
  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();attempts++;document.querySelector("#mix-attempts").textContent=attempts;if(normText(document.querySelector("#text-answer").value)===p.word){addPoints(Math.max(15,50-(attempts-1)*7));showResult("¡Palabra reconstruida!","La palabra era "+p.word.toUpperCase()+". "+p.definition);}else if(attempts>=5){showResult("Se agotaron los intentos","La palabra era "+p.word.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No coincide. Puedes usar la pista semántica y reorganizar las letras." ;document.querySelector("#text-answer").value="";});
