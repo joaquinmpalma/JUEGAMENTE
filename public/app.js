@@ -614,7 +614,7 @@ function crosswordGame(){
 
 const storyMath = [
 [
-{q:"En la cocina, Pepito tenía 14 manzanas para preparar colaciones. Ana tomó 6 para su grupo y después la profesora le entregó otras 3. ¿Cuántas manzanas tiene ahora?",a:"11",ex:"14 − 6 + 3 = 11 manzanas."},
+{q:"En la cocina, Pepito tenía 5 manzanas para preparar colaciones. Ana le regaló otras 4. ¿Cuántas manzanas tiene ahora?",a:"9",ex:"5 + 4 = 9 manzanas."},
 {q:"Una caja contiene 8 paquetes con 5 lápices cada uno. Durante la clase se reparten 13 lápices. ¿Cuántos lápices quedan?",a:"27",ex:"8 × 5 = 40; 40 − 13 = 27 lápices."},
 {q:"En una excursión, 23 estudiantes suben a un bus. En la siguiente parada bajan 7 y suben 4. ¿Cuántos estudiantes continúan?",a:"20",ex:"23 − 7 + 4 = 20 estudiantes."}
 ],
@@ -767,12 +767,12 @@ openGame=function(id){
 function evaluateMathExpression(source){
   let text=String(source).trim().toLowerCase();
   if(!text)return null;
-  text=text.replace(/\\left|\\right/g,"").replace(/\\cdot|\\times/g,"*").replace(/\\div/g,"/").replace(/\\,/g,"");
+  text=text.replace(/\\left|\\right/g,"").replace(/\\cdot|\\times/g,"*").replace(/\\div/g,"/");
   text=text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,"($1)/($2)").replace(/\\sqrt\{([^{}]+)\}/g,"sqrt($1)");
   text=text.replace(/\\log_\{?(\d+)\}?/g,"log_$1").replace(/\\sin/g,"sin").replace(/\\cos/g,"cos").replace(/\\tan/g,"tan").replace(/\\pi/g,"pi");
-  text=text.replace(/\\mathrm\{([^{}]+)\}/g,"$1").replace(/°|\\\\circ|deg/g,"").replace(/,/g,".").replace(/\s+/g,"");
+  text=text.replace(/\\mathrm\{([^{}]+)\}/g,"$1").replace(/°|\\circ|deg/g,"").replace(/,/g,".").replace(/\s+/g,"");
   if(text.includes("="))text=text.slice(text.lastIndexOf("=")+1);
-  const tokens=text.match(/log_\\d+|log|ln|sqrt|sin|cos|tan|sen|pi|√|\\d+(?:\\.\\d+)?|[()+\\-*/^]/gi);
+  const tokens=text.match(/log_\d+|log|ln|sqrt|sin|cos|tan|sen|pi|√|\d+(?:\.\d+)?|[()+\-*/^]/gi);
   if(!tokens||tokens.join("")!==text)return null;
   let i=0;
   function primary(){
@@ -790,9 +790,7 @@ function evaluateMathExpression(source){
       return token==="sin"||token==="sen"?Math.sin(rad):token==="cos"?Math.cos(rad):Math.tan(rad);
     }
     if(token==="log"||token==="ln"||token.startsWith("log_")){
-      let base=10;
-      if(token.startsWith("log_"))base=Number(token.slice(4));
-      if(token==="ln")base=Math.E;
+      let base=10;if(token.startsWith("log_"))base=Number(token.slice(4));if(token==="ln")base=Math.E;
       if(tokens[i]==="(")i++;
       const v=expression();if(tokens[i]===")")i++;
       return Math.log(v)/Math.log(base);
