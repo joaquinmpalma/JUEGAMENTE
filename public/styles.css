@@ -87,3 +87,19 @@
 
 .tas-replay-board span.tas-step-active{outline:2px solid #fff;background:#63569a;color:#fff;box-shadow:0 0 12px #a99aff;transform:translateY(-2px)}
 .tas-perfect .tas-replay-board span.tas-step-active{background:#247a61;box-shadow:0 0 12px #65e7b7}
+
+
+/* TAS — functional sprite accents: color identifies action, never recolors the environment */
+.tas-cell{position:relative;isolation:isolate;overflow:hidden}
+.tas-cell::after{content:"";position:absolute;top:3px;right:3px;width:clamp(4px,1vw,7px);height:clamp(4px,1vw,7px);border-radius:50%;opacity:0;pointer-events:none;box-shadow:0 0 0 1px #101522aa,0 0 7px currentColor}
+.tas-cell[data-role="attack"]::after{opacity:1;background:#e6535d;color:#e6535d}
+.tas-cell[data-role="activate"]::after{opacity:1;background:#42c987;color:#42c987}
+.tas-cell[data-role="unlock"]::after{opacity:1;background:#f2c34e;color:#f2c34e}
+.tas-cell[data-role="objective"]::after{opacity:1;background:#a98aff;color:#a98aff}
+.tas-cell[data-role="solid"]::after{opacity:1;background:#a4afbd;color:#a4afbd}
+.tas-cell[data-role="player"]::after{opacity:1;background:#67d9d0;color:#67d9d0}
+.tas-cell[data-role="nature"]::after{opacity:0}
+.tas-legend{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:7px 13px}
+.tas-legend>span{display:inline-flex;align-items:center;gap:5px}
+.tas-key{display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 1px #ffffff35}
+.tas-key--attack{background:#e6535d}.tas-key--activate{background:#42c987}.tas-key--unlock{background:#f2c34e}.tas-key--move{background:#478fe0}.tas-key--solid{background:#a4afbd}
