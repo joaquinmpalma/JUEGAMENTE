@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101323">
+  <meta name="description" content="Juegamente: pon a prueba tu ingenio, supera minijuegos y alcanza nuevos récords.">
+  <title>Juegamente — Piensa, juega, supera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="page-glow page-glow-one"></div>
+  <div class="page-glow page-glow-two"></div>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Juegamente, inicio">
+      <span class="brand-mark" aria-hidden="true">J<span>!</span></span>
+      <span class="brand-name">juega<span>mente</span></span>
+    </a>
+    <nav class="main-nav" aria-label="Navegación principal">
+      <a class="active" href="#inicio">Inicio</a>
+      <a href="#categorias">Juegos</a>
+      <a href="#reto">Reto diario</a>
+      <a href="#ranking">Clasificación</a>
+    </nav>
+    <a class="header-button" href="#registro">Entrar <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="inicio">
+    <section class="hero section-wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> TU PRÓXIMO DESAFÍO TE ESPERA</div>
+        <h1>Tu mente es<br>tu mejor <span class="gradient-text">jugadora.</span></h1>
+        <p class="hero-description">Piensa rápido, descubre patrones y supera desafíos. Un lugar para jugar, entrenar tu ingenio y romper tus propios récords.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#categorias">Explorar juegos <span aria-hidden="true">→</span></a>
+          <a class="button button-quiet" href="#reto">Ver reto diario</a>
+        </div>
+        <div class="hero-note"><span class="pixel-heart">♥</span> Gratis para jugar. Difícil de dejar.</div>
+      </div>
+      <div class="hero-art" aria-label="Ilustración de mando arcade y elementos pixelados">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="spark spark-a">✦</div><div class="spark spark-b">✧</div>
+        <div class="pixel-float pixel-one">+</div><div class="pixel-float pixel-two">◆</div>
+        <div class="arcade-card">
+          <div class="arcade-top"><span>PLAYER 01</span><span class="live-dot">● EN LÍNEA</span></div>
+          <div class="arcade-screen">
+            <div class="screen-stars">✦　·　✧</div>
+            <div class="screen-title">LEVEL<br><span>UP!</span></div>
+            <div class="screen-subtitle">DESAFÍA TU MENTE</div>
+            <div class="screen-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="arcade-controls"><span class="d-pad">✥</span><span class="control-label">JUEGA<br>Y SUPERA</span><span class="action-buttons"><i></i><i></i></span></div>
+        </div>
+        <div class="float-tag tag-score"><span>✦</span> ¡Nuevo récord!</div>
+        <div class="float-tag tag-xp">+120 XP</div>
+      </div>
+    </section>
+
+    <section class="stats-strip section-wrap" aria-label="Características">
+      <div><strong>08</strong><span>categorías por descubrir</span></div>
+      <div><strong>∞</strong><span>formas de superarte</span></div>
+      <div><strong>01</strong><span>objetivo: superar tu récord</span></div>
+    </section>
+
+    <section class="categories section-wrap" id="categorias">
+      <div class="section-heading">
+        <div><div class="eyebrow">ELIGE TU PARTIDA</div><h2>¿A qué vamos a <span class="gradient-text">jugar?</span></h2></div>
+        <p>Hay un desafío para cada tipo de mente.</p>
+      </div>
+      <div class="category-grid">
+        <a class="category-card card-purple" href="#proximamente"><span class="category-icon">◇</span><span class="category-number">01 / INGENIO</span><h3>Acertijos y lógica</h3><p>Encuentra patrones y resuelve misterios.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-pink" href="#proximamente"><span class="category-icon">⚡</span><span class="category-number">02 / REFLEJOS</span><h3>Habilidad arcade</h3><p>Velocidad, precisión y coordinación.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-blue" href="#proximamente"><span class="category-icon">♜</span><span class="category-number">03 / TÁCTICA</span><h3>Estrategia</h3><p>Piensa varios movimientos por delante.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-orange" href="#proximamente"><span class="category-icon">∑</span><span class="category-number">04 / NÚMEROS</span><h3>Matemáticas</h3><p>Calcula rápido y domina los números.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-green" href="#proximamente"><span class="category-icon">◉</span><span class="category-number">05 / MEMORIA</span><h3>Memoria y concentración</h3><p>Entrena tu atención y recuerda más.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-yellow" href="#proximamente"><span class="category-icon">✦</span><span class="category-number">06 / CONOCIMIENTO</span><h3>Trivia y cultura</h3><p>Demuestra cuánto sabes del mundo.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-red" href="#proximamente"><span class="category-icon">♧</span><span class="category-number">07 / SUPERVIVENCIA</span><h3>Supervivencia</h3><p>Adáptate, decide y resiste.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-cyan" href="#reto"><span class="category-icon">◷</span><span class="category-number">08 / CONTRARRELOJ</span><h3>Retos diarios</h3><p>Un nuevo desafío cada día.</p><span class="card-arrow">↗</span></a>
+      </div>
+    </section>
+
+    <section class="daily section-wrap" id="reto">
+      <div class="daily-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> DESAFÍO DESTACADO</div><h2>Un minuto.<br><span class="gradient-text">Un gran reto.</span></h2><p>Muy pronto podrás competir en desafíos diarios, sumar puntos y escalar posiciones.</p><a class="button button-primary" href="#proximamente">Próximamente <span>→</span></a></div>
+      <div class="daily-preview"><div class="daily-chip">RETO DIARIO <span>COMING SOON</span></div><div class="big-question">?</div><div class="daily-lines"><i></i><i></i><i></i></div><div class="daily-bottom"><span>PIENSA RÁPIDO</span><span>01:00</span></div></div>
+    </section>
+
+    <section class="leaderboard section-wrap" id="ranking">
+      <div><div class="eyebrow">LA COMPETENCIA</div><h2>Tu nombre puede estar <span class="gradient-text">aquí.</span></h2><p>Estamos preparando perfiles, récords y una clasificación mundial para que cada partida cuente.</p></div>
+      <div class="ranking-preview"><div class="ranking-title"><span>TOP JUGADORES</span><span>GLOBAL</span></div><div class="ranking-row"><b class="rank rank-gold">01</b><span class="rank-avatar">✦</span><span class="rank-name">Próximamente</span><span class="rank-points">— XP</span></div><div class="ranking-row"><b class="rank">02</b><span class="rank-avatar avatar-two">◆</span><span class="rank-name">Tu nombre aquí</span><span class="rank-points">— XP</span></div><div class="ranking-row"><b class="rank">03</b><span class="rank-avatar avatar-three">●</span><span class="rank-name">¿Serás tú?</span><span class="rank-points">— XP</span></div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="registro"><a class="brand" href="/"><span class="brand-mark">J<span>!</span></span><span class="brand-name">juega<span>mente</span></span></a><p>Piensa · Juega · Supera</p><span>© <span id="year"></span> Juegamente. Hecho para mentes inquietas.</span></footer>
+</body>
+</html>
