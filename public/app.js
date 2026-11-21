@@ -985,13 +985,13 @@ function tasSolve(map){
  const queue=[start],best=new Map([[tasKey(start),0]]);let qi=0;
  while(qi<queue.length&&qi<180000){
   queue.sort((a,b)=>a.cost-b.cost);const s=queue.shift();const key=tasKey(s);if(s.cost!==best.get(key))continue;
-  if(s.p===map.goal&&(!map.lever||s.lever)){const result=s.path;result.totalCost=s.cost;return result;}
+  if(s.p===map.goal&&(!map.lever||s.lever)&&s.hp===0){const result=s.path;result.totalCost=s.cost;return result;}
   const y=Math.floor(s.p/map.w),x=s.p%map.w;
   for(const d of tasDirs){
    const nx=x+d.x,ny=y+d.y;if(nx<0||ny<0||nx>=map.w||ny>=map.h)continue;
    const np=ny*map.w+nx,tile=map.grid[ny][nx];if(tile==="#")continue;
    let n={...s,path:s.path.concat([{type:"move",dir:d.k}])},cost=1;
-   if(np===map.crate&&map.crate>=0){const bx=nx+d.x,by=ny+d.y;if(bx<0||by<0||bx>=map.w||by>=map.h||map.grid[by][bx]==="#"||by*map.w+bx===map.goal)continue;n.crate=by*map.w+bx;cost++;}
+   if(np===s.crate&&s.crate>=0){const bx=nx+d.x,by=ny+d.y;if(bx<0||by<0||bx>=map.w||by>=map.h||map.grid[by][bx]==="#"||by*map.w+bx===map.goal)continue;n.crate=by*map.w+bx;cost++;}
    if(map.bush.includes(np)&&!s.sword)cost=2;
    if(np===map.sword&&map.sword>=0)n.sword=true;
    if(np===map.enemy&&map.enemy>=0){if(s.hp>0)continue;}
