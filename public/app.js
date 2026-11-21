@@ -489,7 +489,7 @@ categoryHubs.daily.items = [
   ["anagram","Anagrama contrarreloj","Reordena letras bajo presión","↔"]
 ];
 const oldDailyItems = categoryHubs.daily.items;
-categoryHubs.daily.intro = "Cinco retos de vocabulario. Descubre palabras por pistas, lógica y cruces.";
+categoryHubs.daily.intro = "Cuatro retos de vocabulario. Descubre palabras por pistas, lógica y cruces.";
 const oldLogicIntro = categoryHubs.logic.intro;
 categoryHubs.logic.intro = "Conecta conceptos, interpreta dobles sentidos y descubre patrones que no se ven a primera vista.";
 const oldOddIntro = categoryHubs.logic.items.find(x=>x[0]==="oddword");
@@ -511,7 +511,7 @@ const connectionSets = [
 function oddWordGame(){
   const tiles=connectionSets.flatMap((group,g)=>group.words.map(word=>({word,group:g}))).sort(()=>Math.random()-.5);
   let selected=[],solved=[],mistakes=0;
-  setGame("Conexiones de palabras","Hay 16 palabras y cuatro familias ocultas. Selecciona cuatro que pertenezcan a la misma categoría y conéctalas. Al acertar, descubrirás su nombre.",'<div class="connection-status"><span id="connection-progress">0 de 4 categorías descubiertas</span><span>Errores: <b id="connection-errors">0</b>/4</span></div><div class="connection-grid" id="connection-grid"></div><div class="connection-controls"><span id="connection-selected">Selecciona cuatro palabras</span><button class="math-check" id="connection-check" type="button" disabled>Conectar grupo</button></div><p class="game-hint" id="connection-feedback" aria-live="polite"></p><div id="connection-solved" class="connection-solved"></div>');
+  setGame("Conexiones de palabras","Hay 16 palabras y cuatro familias ocultas. Selecciona cuatro que pertenezcan a la misma categoría y conéctalas. Al acertar, descubrirás su nombre.",'<div class="connection-status"><span id="connection-progress">0 de 4 categorías descubiertas</span><span>Errores: <b id="connection-errors">0</b></span></div><div class="connection-grid" id="connection-grid"></div><div class="connection-controls"><span id="connection-selected">Selecciona cuatro palabras</span><button class="math-check" id="connection-check" type="button" disabled>Conectar grupo</button></div><p class="game-hint" id="connection-feedback" aria-live="polite"></p><div id="connection-solved" class="connection-solved"></div>');
   const grid=document.querySelector("#connection-grid");
   const render=()=>{
     grid.innerHTML="";
@@ -546,7 +546,7 @@ function oddWordGame(){
       document.querySelector("#connection-feedback").textContent="Estas cuatro palabras no pertenecen todas a la misma familia. Observa sus significados y posibles usos.";
       selected=[];document.querySelector("#connection-selected").textContent="Vuelve a intentarlo";
       document.querySelector("#connection-check").disabled=true;render();
-      if(mistakes>=4){document.querySelector("#connection-feedback").textContent="Se acabaron los intentos. Puedes seguir jugando, pero el reto ya no dará bonificación perfecta.";}
+      if(mistakes>=4){document.querySelector("#connection-feedback").textContent="Llevas cuatro errores. Puedes seguir intentando: no hay límite de intentos.";}
     }
   });
   render();
@@ -602,7 +602,7 @@ function crosswordGame(){
     {word:"ECO",dir:"across",row:2,col:1,num:3,clue:"Repetición de un sonido."},
     {word:"AROS",dir:"down",row:0,col:3,num:4,clue:"Anillos que se usan como adorno."}
   ];
-  const cells={};entries.forEach(entry=>[...entry.word].forEach((letter,i)=>{const r=entry.row+(entry.dir==="down"?i:0),c=entry.col+(entry.dir==="across"?i:0),key=r+"-"+c;if(!cells[key])cells[key]={letter,number:[],across:false,down:false};cells[key].number.push(entry.num);cells[key][entry.dir]=true;}));
+  const cells={};entries.forEach(entry=>[...entry.word].forEach((letter,i)=>{const r=entry.row+(entry.dir==="down"?i:0),c=entry.col+(entry.dir==="across"?i:0),key=r+"-"+c;if(!cells[key])cells[key]={letter,number:[],across:false,down:false};if(i===0)cells[key].number.push(entry.num);cells[key][entry.dir]=true;}));
   setGame("Crucigrama","Completa las palabras horizontales y verticales. Las respuestas se cruzan: una letra correcta puede ayudarte a resolver otra palabra.",'<div class="crossword-layout"><div class="crossword-board" id="crossword-board"></div><div class="crossword-clues"><b>Horizontales</b><ol id="cross-across"></ol><b>Verticales</b><ol id="cross-down"></ol><button class="math-check" type="button" id="cross-check">Comprobar crucigrama</button><p class="game-hint" id="cross-feedback"></p></div></div>');
   const board=document.querySelector("#crossword-board");
   for(let r=0;r<4;r++)for(let c=0;c<4;c++){
@@ -821,7 +821,7 @@ function cryptogramGame(){
   const session=gameSessionRevision;
   let index=0,correct=0,lockedCrypto=false,hintUsed=false,revealed=false;
   const deck=[...crypticWordChallenges];
-  setGame("Criptogramas de palabras","Interpreta definiciones, dobles sentidos y construcciones. No se trata de sustituir letras.",'<div class="game-meta"><span>Enigma <b id="crypto-index">1</b>/'+deck.length+'</span><span>Hasta 30 puntos por solución</span></div><div class="cryptic-card"><span class="cryptic-label">PISTA CRÍPTICA</span><p id="cryptic-clue"></p></div><div class="cryptic-hint-row"><button type="button" class="hub-back" id="cryptic-hint">Pedir una pista</button><button type="button" class="hub-back" id="cryptic-reveal">Ver construcción</button></div><p class="game-hint" id="cryptic-extra" aria-live="polite"></p>'+textAnswerForm("Escribe la palabra que se forma"));
+  setGame("Enigmas de palabras","Interpreta definiciones, dobles sentidos y construcciones. No se trata de sustituir letras.",'<div class="game-meta"><span>Enigma <b id="crypto-index">1</b>/'+deck.length+'</span><span>Hasta 30 puntos por solución</span></div><div class="cryptic-card"><span class="cryptic-label">PISTA CRÍPTICA</span><p id="cryptic-clue"></p></div><div class="cryptic-hint-row"><button type="button" class="hub-back" id="cryptic-hint">Pedir una pista</button><button type="button" class="hub-back" id="cryptic-reveal">Ver construcción</button></div><p class="game-hint" id="cryptic-extra" aria-live="polite"></p>'+textAnswerForm("Escribe la palabra que se forma"));
   const render=()=>{if(index>=deck.length){showResult("¡Descifraste las palabras!","Respuestas correctas: "+correct+" de "+deck.length+".");return;}lockedCrypto=false;hintUsed=false;revealed=false;document.querySelector("#crypto-index").textContent=index+1;document.querySelector("#cryptic-clue").textContent=deck[index].clue;document.querySelector("#cryptic-extra").textContent="";document.querySelector("#text-answer").value="";document.querySelector("#text-feedback").textContent="";};
   document.querySelector("#cryptic-hint").addEventListener("click",()=>{if(lockedCrypto)return;hintUsed=true;document.querySelector("#cryptic-extra").textContent=deck[index].hint;});
   document.querySelector("#cryptic-reveal").addEventListener("click",()=>{if(lockedCrypto)return;revealed=true;document.querySelector("#cryptic-extra").textContent="Construcción: "+deck[index].parts+". "+deck[index].explain;});
