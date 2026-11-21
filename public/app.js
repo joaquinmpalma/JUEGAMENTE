@@ -745,3 +745,13 @@ precisionGame=function(){
  precisionGameBeforeCleanup();
  const originalSetInterval=window.setInterval;
 };
+
+const openGameBeforeFinalRouting=openGame;
+openGame=function(id){
+  if(id==="wordmix"){
+    currentGame=id;score=0;locked=false;stopTimer();updateScore();
+    if(!modal.classList.contains("is-open")){modal.classList.add("is-open");modal.setAttribute("aria-hidden","false");document.body.classList.add("game-open");}
+    wordMixGame();return;
+  }
+  openGameBeforeFinalRouting(id);
+};
