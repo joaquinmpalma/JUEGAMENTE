@@ -55,3 +55,17 @@
  .crossword-board{width:100%;max-width:280px;margin:auto}
  .word-guess-cell{width:34px;height:34px}
 }
+
+/* Expanded arcade and survival modes */
+.precision-track{position:relative;height:35px;margin:30px 4px 22px;border:1px solid #60698d;border-radius:20px;background:#10172c;overflow:hidden}
+.precision-zone{position:absolute;top:0;bottom:0;left:35%;width:15%;background:linear-gradient(90deg,#38ba98,#a7edb7);box-shadow:0 0 18px #52d5a677}
+.precision-marker{position:absolute;top:-4px;bottom:-4px;left:0;width:5px;background:#fff;box-shadow:0 0 12px #fff;z-index:1}
+.precision-stop{display:block;width:100%;min-height:48px}
+.cold-resources{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#b9c4df;font-size:11px;font-weight:900;margin:10px 0}
+.cold-status{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.survival-scene{padding:18px;border:1px solid #687294;border-radius:13px;background:linear-gradient(145deg,#26334b,#11192d);margin:13px 0;color:#e9efff}
+.survival-scene b{font-size:14px;color:#b5d8ff;letter-spacing:.7px}
+.survival-scene p{font-size:12px;line-height:1.6;color:#b5bfd6;margin:8px 0 0}
+.survival-actions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.survival-actions-grid .quiz-option{min-height:48px}
+@media(max-width:520px){.survival-actions-grid{grid-template-columns:1fr}.cold-resources{justify-content:flex-start}.cold-status{font-size:10px}}
