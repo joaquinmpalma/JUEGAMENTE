@@ -666,3 +666,46 @@ function mathLevelGame(level){
   setupMathBoard();
   render();
 }
+
+
+/* Arcade and survival get dedicated mode menus and playable variations. */
+categoryHubs.arcade.intro="Pruebas de reflejos, precisión y memoria a contrarreloj. Supera tus marcas.";
+categoryHubs.arcade.items=[
+ ["arcade","Cazaobjetivos","Golpea objetivos móviles antes de que acabe el tiempo","◎"],
+ ["precision","Pulso de precisión","Detén el indicador dentro de la zona perfecta","⌁"],
+ ["sequence","Memoria relámpago","Repite patrones cada vez más largos","◉"]
+];
+categoryHubs.survival.intro="Decisiones, recursos limitados y entornos hostiles. Cada día cuenta.";
+categoryHubs.survival.items=[
+ ["survival","La isla","Consigue comida, madera y resiste seis días","🏝"],
+ ["coldsurvival","Frontera helada","Controla el frío, la energía y el refugio","❄"],
+ ["nightwatch","Última guardia","Administra recursos durante noches peligrosas","🌙"]
+];
+const previousOpenGameV05=openGame;
+openGame=function(id){
+ if(id==="precision"){precisionGame();return;}
+ if(id==="coldsurvival"){coldSurvivalGame();return;}
+ if(id==="nightwatch"){nightWatchGame();return;}
+ previousOpenGameV05(id);
+};
+function precisionGame(){
+ let round=0,hits=0,position=0,direction=1,interval=null;
+ setGame("Pulso de precisión","El marcador se mueve. Detenlo cuando esté dentro de la zona luminosa. La zona se estrecha en cada ronda.",'<div class="game-meta"><span>Ronda <b id="precision-round">1</b>/5</span><span>Perfectos: <b id="precision-hits">0</b></span></div><div class="precision-track"><div class="precision-zone" id="precision-zone"></div><div class="precision-marker" id="precision-marker"></div></div><button class="math-check precision-stop" id="precision-stop" type="button">¡DETENER!</button><p class="game-hint" id="precision-feedback">Pulsa cuando el marcador esté dentro de la zona.</p>');
+ const marker=document.querySelector("#precision-marker"),zone=document.querySelector("#precision-zone");
+ const run=()=>{round++;if(round>5){showResult("¡Prueba de precisión terminada!","Aciertos perfectos: "+hits+" de 5.");return;}document.querySelector("#precision-round").textContent=round;const width=Math.max(7,24-round*3);const left=12+Math.random()*(76-width);zone.style.left=left+"%";zone.style.width=width+"%";position=0;direction=1;marker.style.left="0%";clearInterval(interval);interval=setInterval(()=>{position+=direction*2.1;if(position>=96){position=96;direction=-1;}if(position<=0){position=0;direction=1;}marker.style.left=position+"%";},24);};
+ document.querySelector("#precision-stop").addEventListener("click",()=>{if(!interval)return;clearInterval(interval);interval=null;const left=parseFloat(zone.style.left),width=parseFloat(zone.style.width);if(position>=left&&position<=left+width){hits++;addPoints(20);document.querySelector("#precision-hits").textContent=hits;document.querySelector("#precision-feedback").textContent="¡Precisión perfecta! +20 puntos.";}else document.querySelector("#precision-feedback").textContent="Fuera de la zona. Observa el ritmo y vuelve a intentarlo.";setTimeout(run,850);});
+ run();
+ const oldStop=stopTimer; // interval is explicitly cleared when the modal closes via next launch.
+}
+function coldSurvivalGame(){
+ let day=1,temperature=55,food=3,wood=3,shelter=0,health=100;
+ const update=()=>{document.querySelector("#cold-day").textContent=day;document.querySelector("#cold-temp").textContent=temperature;document.querySelector("#cold-food").textContent=food;document.querySelector("#cold-wood").textContent=wood;document.querySelector("#cold-shelter").textContent=shelter;document.querySelector("#cold-health").textContent=health;};
+ setGame("Frontera helada","Una tormenta te aisló en la montaña. Mantén el calor, administra comida y mejora tu refugio. Sobrevive 8 jornadas.",'<div class="survival-status cold-status"><span>❤️ Salud <b id="cold-health">100</b></span><span>🌡️ Calor <b id="cold-temp">55</b></span><span>🍲 Comida <b id="cold-food">3</b></span></div><div class="cold-resources"><span>Día <b id="cold-day">1</b>/8</span><span>🪵 Leña <b id="cold-wood">3</b></span><span>🏠 Refugio <b id="cold-shelter">0</b></span></div><div class="survival-scene"><b>REFUGIO EN LA MONTAÑA</b><p>El viento golpea la puerta. Debes decidir cómo usar las horas de luz.</p></div><div class="survival-actions survival-actions-grid"><button class="quiz-option" data-cold="wood">Recolectar leña</button><button class="quiz-option" data-cold="fire">Encender fuego</button><button class="quiz-option" data-cold="food">Buscar alimento</button><button class="quiz-option" data-cold="shelter">Reforzar refugio</button><button class="quiz-option" data-cold="rest">Descansar</button></div><p class="game-hint" id="cold-log" aria-live="polite">La temperatura baja al terminar cada jornada.</p>');
+ document.querySelectorAll("[data-cold]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.cold;let message="";if(action==="wood"){wood+=2;message="Encontraste ramas secas. +2 leña.";}if(action==="fire"){if(wood>=2){wood-=2;temperature=Math.min(100,temperature+28);message="Encendiste un fuego. El refugio recupera calor.";}else message="No tienes suficiente leña para encender el fuego.";}if(action==="food"){food+=2;message="Encontraste provisiones bajo la nieve. +2 comida.";}if(action==="shelter"){if(wood>=3){wood-=3;shelter++;message="Reforzaste el refugio. El viento tendrá menos efecto.";}else message="Necesitas 3 unidades de leña.";}if(action==="rest"){if(food>0){food--;health=Math.min(100,health+12);message="Comiste y recuperaste fuerzas.";}else message="No tienes comida. Descansar con hambre es peligroso.";}day++;temperature-=Math.max(4,14-shelter*3);if(temperature<35)health-=Math.ceil((35-temperature)*.7);if(food===0)health-=8;else food--;temperature=Math.max(0,temperature);document.querySelector("#cold-log").textContent=message+" La noche reduce el calor.";update();if(health<=0){showResult("La tormenta te venció","Sobreviviste "+(day-1)+" jornadas. La próxima vez equilibra fuego, comida y refugio.");}else if(day>8){addPoints(50);showResult("¡Sobreviviste a la frontera helada!","Mantuviste la salud y el refugio durante ocho jornadas.");}}));
+}
+function nightWatchGame(){
+ let night=1,ammo=4,food=3,noise=0,health=3;
+ setGame("Última guardia","Una estación aislada recibe visitas después del anochecer. Escucha, administra munición y decide cuándo mantener silencio.",'<div class="survival-status"><span>🌙 Noche <b id="watch-night">1</b>/6</span><span>❤️ Vida <b id="watch-health">3</b></span><span>🔦 Batería <b id="watch-ammo">4</b></span><span>🥫 Comida <b id="watch-food">3</b></span></div><div class="survival-scene"><b id="watch-scene">Algo se mueve fuera de la cerca.</b><p id="watch-detail">No puedes distinguir si es un animal o una persona.</p></div><div class="survival-actions survival-actions-grid"><button class="quiz-option" data-watch="listen">Escuchar primero</button><button class="quiz-option" data-watch="light">Encender foco</button><button class="quiz-option" data-watch="hide">Apagar todo y ocultarte</button><button class="quiz-option" data-watch="ration">Comer y recuperar fuerzas</button></div><p class="game-hint" id="watch-log">No todas las amenazas son lo que parecen.</p>');
+ const scenes=[["Un golpe seco suena en el cobertizo.","Una sombra cruza detrás del tanque."],["Se escuchan pasos lentos sobre la grava.","La radio emite una voz entre interferencias."],["Algo araña la puerta del almacén.","Una luz parpadea en el bosque."],["El generador se detiene de golpe.","Una figura aparece junto a la verja."],["La tormenta tapa todos los sonidos.","La puerta exterior queda entreabierta."],["El amanecer está cerca, pero aún queda una última ronda.","Un ruido llega desde el techo."]];
+ document.querySelectorAll("[data-watch]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.watch,scene=scenes[night-1][Math.floor(Math.random()*2)];let msg="";if(action==="listen"){msg="Esperaste y reconociste el patrón del ruido. Evitaste gastar recursos.";if(Math.random()<.55)health=Math.min(3,health+0);}if(action==="light"){if(ammo>0){ammo--;msg="Iluminaste el exterior y detectaste la amenaza a tiempo.";}else{health--;msg="La batería está agotada. Algo se acercó demasiado.";}}if(action==="hide"){msg="Apagaste las luces y permaneciste inmóvil.";if(Math.random()<.25)health--;}if(action==="ration"){if(food>0){food--;health=Math.min(3,health+1);msg="Comiste una ración y recuperaste una vida.";}else msg="No queda comida."; }if(night%2===0&&action!=="light"&&Math.random()<.35){health--;msg+=" Un ruido te tomó por sorpresa.";}document.querySelector("#watch-scene").textContent=scene;document.querySelector("#watch-detail").textContent="La estación permanece a oscuras.";document.querySelector("#watch-log").textContent=msg;night++;document.querySelector("#watch-night").textContent=Math.min(night,6);document.querySelector("#watch-health").textContent=health;document.querySelector("#watch-ammo").textContent=ammo;document.querySelector("#watch-food").textContent=food;if(health<=0)showResult("La guardia terminó","La estación no resistió. Llegaste a la noche "+(night-1)+".");else if(night>6){addPoints(50);showResult("¡Amaneció!","Sobreviviste seis noches administrando tus recursos.");}}));
+}
