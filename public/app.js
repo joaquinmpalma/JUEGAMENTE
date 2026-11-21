@@ -774,7 +774,7 @@ function evaluateMathExpression(source){
   text=text.replace(/\\left|\\right/g,"").replace(/\\cdot|\\times/g,"*").replace(/\\div/g,"/");
   text=text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,"($1)/($2)").replace(/\\sqrt\{([^{}]+)\}/g,"sqrt($1)");
   text=text.replace(/\\log_\{?(\d+)\}?/g,"log_$1").replace(/\\sin/g,"sin").replace(/\\cos/g,"cos").replace(/\\tan/g,"tan").replace(/\\pi/g,"pi");
-  text=text.replace(/\\mathrm\{([^{}]+)\}/g,"$1").replace(/\^\{([^{}]+)\}/g,"^($1)").replace(/\^\{\}/g,"").replace(/°|\\circ|deg/g,"").replace(/,/g,".").replace(/\s+/g,"");
+  text=text.replace(/\\mathrm\{([^{}]+)\}/g,"$1").replace(/°|\\circ|deg/g,"").replace(/\^\{\}/g,"").replace(/\^\{([^{}]+)\}/g,"^($1)").replace(/,/g,".").replace(/\s+/g,"");
   if(text.includes("="))text=text.slice(text.lastIndexOf("=")+1);
   const tokens=text.match(/log_\d+|log|ln|sqrt|sin|cos|tan|sen|pi|√|\d+(?:\.\d+)?|[()+\-*/^]/gi);
   if(!tokens||tokens.join("")!==text)return null;
