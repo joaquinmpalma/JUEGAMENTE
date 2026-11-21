@@ -671,13 +671,13 @@ function mathLevelGame(level){
 /* Arcade and survival get dedicated mode menus and playable variations. */
 categoryHubs.arcade.intro="Pruebas de reflejos, precisión y memoria a contrarreloj. Supera tus marcas.";
 categoryHubs.arcade.items=[
- ["arcade","Cazaobjetivos","Golpea objetivos móviles antes de que acabe el tiempo","◎"],
+ ["targetrush","Cazaobjetivos","Golpea objetivos móviles antes de que acabe el tiempo","◎"],
  ["precision","Pulso de precisión","Detén el indicador dentro de la zona perfecta","⌁"],
  ["sequence","Memoria relámpago","Repite patrones cada vez más largos","◉"]
 ];
 categoryHubs.survival.intro="Decisiones, recursos limitados y entornos hostiles. Cada día cuenta.";
 categoryHubs.survival.items=[
- ["survival","La isla","Consigue comida, madera y resiste seis días","🏝"],
+ ["island","La isla","Consigue comida, madera y resiste seis días","🏝"],
  ["coldsurvival","Frontera helada","Controla el frío, la energía y el refugio","❄"],
  ["nightwatch","Última guardia","Administra recursos durante noches peligrosas","🌙"]
 ];
@@ -754,4 +754,15 @@ openGame=function(id){
     wordMixGame();return;
   }
   openGameBeforeFinalRouting(id);
+};
+
+const openGameBeforeFinalModes=openGame;
+openGame=function(id){
+ if(id==="targetrush"||id==="island"){
+   currentGame=id;score=0;locked=false;stopTimer();updateScore();
+   if(!modal.classList.contains("is-open")){modal.classList.add("is-open");modal.setAttribute("aria-hidden","false");document.body.classList.add("game-open");}
+   if(id==="targetrush")arcadeGame();else survivalGame();
+   return;
+ }
+ openGameBeforeFinalModes(id);
 };
