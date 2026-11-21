@@ -985,7 +985,7 @@ function tasSolve(map){
  const queue=[start],best=new Map([[tasKey(start),0]]);let qi=0;
  while(qi<queue.length&&qi<180000){
   queue.sort((a,b)=>a.cost-b.cost);const s=queue.shift();const key=tasKey(s);if(s.cost!==best.get(key))continue;
-  if(s.p===map.goal&&(!map.lever||s.lever))return s.path;
+  if(s.p===map.goal&&(!map.lever||s.lever)){const result=s.path;result.totalCost=s.cost;return result;}
   const y=Math.floor(s.p/map.w),x=s.p%map.w;
   for(const d of tasDirs){
    const nx=x+d.x,ny=y+d.y;if(nx<0||ny<0||nx>=map.w||ny>=map.h)continue;
@@ -1043,7 +1043,7 @@ function tasRender(){
   cell.classList.add(cls);cell.textContent=glyph;cell.setAttribute("role","gridcell");board.appendChild(cell);
  }
  document.querySelector("#tas-turns").textContent=s.turns;
- document.querySelector("#tas-optimal").textContent=s.solution.length;
+ document.querySelector("#tas-optimal").textContent=s.solution.totalCost??s.solution.length;
  document.querySelector("#tas-weapon").textContent=s.sword?"Espada":"Sin arma";
 }
 function tasAction(action){
@@ -1069,7 +1069,7 @@ function tasAction(action){
 }
 function tasFinish(){
  const s=tasState,playerPath=s.path.map(x=>x.action),optimal=s.solution;
- const earned=Math.max(0,1000-(s.turns-optimal.length)*35);addPoints(earned);
+ const optimalTurns=optimal.totalCost??optimal.length;const earned=Math.max(0,1000-(s.turns-optimalTurns)*35);addPoints(earned);
  const actions=s.path.map(x=>x.action),tas=optimal.map(x=>x.type==="move"?x.dir:x.type);
  gameContent.innerHTML='<div class="tas-finish"><h3>¡Nivel completado!</h3><p>Tu partida: <b>'+s.turns+' turnos</b> · TAS óptimo: <b>'+optimal.length+' turnos</b></p><div class="tas-replay"><h4>01 · TU RECORRIDO</h4><div id="tas-player-replay" class="tas-replay-board"></div><p>Reproducción de tus '+actions.length+' acciones.</p></div><div class="tas-replay tas-perfect"><h4>02 · SOLUCIÓN TAS PERFECTA</h4><div id="tas-perfect-replay" class="tas-replay-board"></div><p>El algoritmo exploró estados y costes para encontrar la ruta de menor coste conocida.</p></div><button class="button button-primary" id="tas-next">Siguiente nivel →</button><button class="button button-quiet" id="tas-again">Repetir nivel</button></div>';
  const drawReplay=(target,seq)=>{const box=document.querySelector(target);box.textContent="";seq.forEach((a,i)=>{const chip=document.createElement("span");chip.textContent=(i+1)+". "+String(a).toUpperCase();box.appendChild(chip);});};
