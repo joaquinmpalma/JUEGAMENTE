@@ -740,11 +740,6 @@ openGame=function(id){
 let precisionIntervalId=null;
 const stopTimerBeforePrecisionFix=stopTimer;
 stopTimer=function(){if(precisionIntervalId!==null){clearInterval(precisionIntervalId);precisionIntervalId=null;}stopTimerBeforePrecisionFix();};
-const precisionGameBeforeCleanup=precisionGame;
-precisionGame=function(){
- precisionGameBeforeCleanup();
- const originalSetInterval=window.setInterval;
-};
 
 const openGameBeforeFinalRouting=openGame;
 openGame=function(id){
