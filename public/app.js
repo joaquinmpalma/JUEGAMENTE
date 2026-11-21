@@ -761,3 +761,114 @@ openGame=function(id){
  }
  openGameBeforeFinalModes(id);
 };
+
+
+/* 0.5 — consistency and game-flow corrections */
+function evaluateMathExpression(source){
+  let text=String(source).trim().toLowerCase();
+  if(!text)return null;
+  text=text.replace(/\\left|\\right/g,"").replace(/\\cdot|\\times/g,"*").replace(/\\div/g,"/").replace(/\\,/g,"");
+  text=text.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,"($1)/($2)").replace(/\\sqrt\{([^{}]+)\}/g,"sqrt($1)");
+  text=text.replace(/\\log_\{?(\d+)\}?/g,"log_$1").replace(/\\sin/g,"sin").replace(/\\cos/g,"cos").replace(/\\tan/g,"tan").replace(/\\pi/g,"pi");
+  text=text.replace(/\\mathrm\{([^{}]+)\}/g,"$1").replace(/°|\\\\circ|deg/g,"").replace(/,/g,".").replace(/\s+/g,"");
+  if(text.includes("="))text=text.slice(text.lastIndexOf("=")+1);
+  const tokens=text.match(/log_\\d+|log|ln|sqrt|sin|cos|tan|sen|pi|√|\\d+(?:\\.\\d+)?|[()+\\-*/^]/gi);
+  if(!tokens||tokens.join("")!==text)return null;
+  let i=0;
+  function primary(){
+    const token=tokens[i++];
+    if(token===undefined)throw 0;
+    if(token==="+")return primary();
+    if(token==="-")return -primary();
+    if(token==="("){const v=expression();if(tokens[i++]!==")")throw 0;return v;}
+    if(token==="√"||token==="sqrt"){if(tokens[i]==="(")i++;const v=expression();if(tokens[i]===")")i++;return Math.sqrt(v);}
+    if(token==="pi")return Math.PI;
+    if(token==="sin"||token==="sen"||token==="cos"||token==="tan"){
+      if(tokens[i]==="(")i++;
+      const v=expression();if(tokens[i]===")")i++;
+      const rad=v*Math.PI/180;
+      return token==="sin"||token==="sen"?Math.sin(rad):token==="cos"?Math.cos(rad):Math.tan(rad);
+    }
+    if(token==="log"||token==="ln"||token.startsWith("log_")){
+      let base=10;
+      if(token.startsWith("log_"))base=Number(token.slice(4));
+      if(token==="ln")base=Math.E;
+      if(tokens[i]==="(")i++;
+      const v=expression();if(tokens[i]===")")i++;
+      return Math.log(v)/Math.log(base);
+    }
+    const n=Number(token);if(!Number.isFinite(n))throw 0;return n;
+  }
+  function power(){let v=primary();if(tokens[i]==="^"){i++;v=Math.pow(v,power());}return v;}
+  function term(){let v=power();while(tokens[i]==="*"||tokens[i]==="/"){const op=tokens[i++],r=power();v=op==="*"?v*r:v/r;}return v;}
+  function expression(){let v=term();while(tokens[i]==="+"||tokens[i]==="-"){const op=tokens[i++],r=term();v=op==="+"?v+r:v-r;}return v;}
+  try{const value=expression();return i===tokens.length&&Number.isFinite(value)?value:null;}catch(_){return null;}
+}
+
+function wordGuessGame(){
+  const dayNumber=Math.floor(Date.now()/86400000);
+  const puzzle=wordOfDayPuzzles[((dayNumber%wordOfDayPuzzles.length)+wordOfDayPuzzles.length)%wordOfDayPuzzles.length];
+  const answer=normText(puzzle.word);let tries=0,won=false,history=[];
+  setGame("Palabra del día · Intentos","Adivina la palabra oculta. Tienes seis intentos. Verde: letra y posición correctas. Dorado: la letra aparece, pero en otra posición.",'<div class="game-meta"><span>Intentos <b id="word-tries">0</b>/6</span><span>Longitud: '+answer.length+' letras</span></div><div class="word-guess-board" id="word-guess-board" aria-live="polite"></div>'+textAnswerForm("Escribe una palabra de "+answer.length+" letras"));
+  const board=document.querySelector("#word-guess-board");
+  const render=()=>{board.innerHTML="";history.forEach(row=>{const states=Array(row.length).fill("absent"),remaining={};[...answer].forEach((ch,i)=>{if(row[i]===ch)states[i]="exact";else remaining[ch]=(remaining[ch]||0)+1;});row.forEach((ch,i)=>{if(states[i]==="exact")return;if(remaining[ch]>0){states[i]="present";remaining[ch]--;}});const line=document.createElement("div");line.className="word-guess-row";row.forEach((letter,i)=>{const cell=document.createElement("span");cell.className="word-guess-cell "+states[i];cell.textContent=letter.toUpperCase();line.appendChild(cell);});board.appendChild(line);});};
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(won||tries>=6)return;const guess=normText(document.querySelector("#text-answer").value);if(guess.length!==answer.length){document.querySelector("#text-feedback").textContent="La respuesta debe tener exactamente "+answer.length+" letras.";return;}tries++;document.querySelector("#word-tries").textContent=tries;history.push([...guess]);render();document.querySelector("#text-answer").value="";if(guess===answer){won=true;addPoints(50);document.querySelector("#text-feedback").textContent="¡La encontraste! "+puzzle.definition;showResult("¡Palabra descubierta!","La palabra era "+answer.toUpperCase()+".");}else if(tries===6){document.querySelector("#text-feedback").textContent="Se acabaron los intentos. La palabra era "+answer.toUpperCase()+".";showResult("Fin de los intentos","La palabra era "+answer.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No es esa. Observa las posiciones y prueba otra palabra.";});
+}
+
+function cryptogramGame(){
+  let index=0,correct=0,lockedCrypto=false,hintUsed=false,revealed=false;
+  const deck=[...crypticWordChallenges];
+  setGame("Criptogramas de palabras","Interpreta definiciones, dobles sentidos y construcciones. No se trata de sustituir letras.",'<div class="game-meta"><span>Enigma <b id="crypto-index">1</b>/'+deck.length+'</span><span>Hasta 30 puntos por solución</span></div><div class="cryptic-card"><span class="cryptic-label">PISTA CRÍPTICA</span><p id="cryptic-clue"></p></div><div class="cryptic-hint-row"><button type="button" class="hub-back" id="cryptic-hint">Pedir una pista</button><button type="button" class="hub-back" id="cryptic-reveal">Ver construcción</button></div><p class="game-hint" id="cryptic-extra" aria-live="polite"></p>'+textAnswerForm("Escribe la palabra que se forma"));
+  const render=()=>{if(index>=deck.length){showResult("¡Descifraste las palabras!","Respuestas correctas: "+correct+" de "+deck.length+".");return;}lockedCrypto=false;hintUsed=false;revealed=false;document.querySelector("#crypto-index").textContent=index+1;document.querySelector("#cryptic-clue").textContent=deck[index].clue;document.querySelector("#cryptic-extra").textContent="";document.querySelector("#text-answer").value="";document.querySelector("#text-feedback").textContent="";};
+  document.querySelector("#cryptic-hint").addEventListener("click",()=>{if(lockedCrypto)return;hintUsed=true;document.querySelector("#cryptic-extra").textContent=deck[index].hint;});
+  document.querySelector("#cryptic-reveal").addEventListener("click",()=>{if(lockedCrypto)return;revealed=true;document.querySelector("#cryptic-extra").textContent="Construcción: "+deck[index].parts+". "+deck[index].explain;});
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(lockedCrypto)return;if(normText(document.querySelector("#text-answer").value)===normText(deck[index].answer)){lockedCrypto=true;correct++;const earned=revealed?0:hintUsed?15:30;if(earned)addPoints(earned);document.querySelector("#text-feedback").textContent="¡Exacto! "+deck[index].explain+(earned?" +"+earned+" puntos.":"");setTimeout(()=>{index++;render();},1300);}else document.querySelector("#text-feedback").textContent="No coincide. Piensa en las ideas y palabras que forman la respuesta.";});
+  render();
+}
+
+function deductionGame(){
+ const qs=[
+  {q:"Todos los tulipanes de este invernadero son azules. Esta flor es uno de esos tulipanes. ¿Qué puedes concluir?",a:"azul",opts:["Azul","Roja","No se puede saber"]},
+  {q:"Marta llegó antes que Luis. Luis llegó antes que Paula. ¿Quién llegó en segundo lugar?",a:"luis",opts:["Marta","Luis","Paula"]},
+  {q:"Ningún objeto de vidrio de esta caja es flexible. La pieza A es de vidrio y está dentro de la caja. ¿Qué afirmación es válida?",a:"no es flexible",opts:["Es flexible","No es flexible","Es irrompible"]}
+ ];
+ let i=0;
+ setGame("Deducción","Resuelve situaciones usando únicamente la información que entregan las pistas.",'<div class="game-meta"><span>Caso <b id="deduction-index">1</b>/'+qs.length+'</span><span>20 puntos por caso</span></div><div class="quiz-question" id="deduction-question"></div><div class="quiz-options" id="deduction-options"></div><p class="game-hint" id="deduction-feedback" aria-live="polite"></p>');
+ const render=()=>{if(i>=qs.length){finishSimpleGame("¡Casos resueltos!","Completaste las tres deducciones.");return;}document.querySelector("#deduction-index").textContent=i+1;document.querySelector("#deduction-question").textContent=qs[i].q;document.querySelector("#deduction-feedback").textContent="";const box=document.querySelector("#deduction-options");box.innerHTML="";qs[i].opts.forEach(o=>{const b=document.createElement("button");b.type="button";b.className="quiz-option";b.textContent=o;b.addEventListener("click",()=>{if(normText(o)===normText(qs[i].a)){addPoints(20);i++;render();}else document.querySelector("#deduction-feedback").textContent="Esa conclusión no se desprende necesariamente de las premisas.";});box.appendChild(b);});};render();
+}
+
+function mathLevelGame(level){
+ if(!Number.isInteger(level)||level<0||level>=mathLevels.length){renderCategoryHub("math");return;}
+ const questions=storyMath[level];let index=0,correct=0,checking=false;
+ setGame("Matemáticas · "+mathLevels[level].title,"Lee el caso, identifica los datos y resuelve el problema. Puedes desarrollar los pasos en la pizarra.",'<div class="math-progress"><span>Nivel '+(level+1)+' de 8</span><span>Problema <b id="math-index">1</b>/'+questions.length+'</span></div><div class="math-story-card"><span>PROBLEMA CONTEXTUALIZADO</span><p id="math-question"></p></div><div class="math-workspace math-workspace-wide"><div class="math-board-area math-board-large"><div class="board-heading"><b>Tu pizarra de desarrollo</b><button type="button" id="clear-board">Limpiar</button></div><canvas id="math-board" aria-label="Pizarra para desarrollar el problema"></canvas><small>Desarrolla operaciones, esquemas y ecuaciones con mouse o dedo.</small></div><div class="math-input-area math-answer-side"><label for="math-answer">Tu respuesta final</label><math-field id="math-answer" virtual-keyboard-mode="manual" smart-fence></math-field><div class="math-symbol-row"><button type="button" data-insert="\\frac{#@}{#?}">a/b</button><button type="button" data-insert="^{#?}">x²</button><button type="button" data-insert="\\sqrt{#0}">√</button><button type="button" data-insert="\\pi">π</button><button type="button" data-insert="\\log_{10}\\left(#0\\right)">log</button><button type="button" data-insert="\\sin\\left(#0\\right)">sen</button><button type="button" data-insert="\\cdot">·</button><button type="button" data-insert="\\le">≤</button><button type="button" data-insert="\\infty">∞</button></div><div class="math-actions"><button type="button" class="math-keyboard" id="show-math-keyboard">⌨ Teclado matemático</button><button type="button" class="math-check" id="check-math">Comprobar</button></div><p class="math-feedback" id="math-feedback" aria-live="polite"></p></div></div><div class="math-explanation" id="math-explanation" hidden></div><div class="math-level-footer"><button type="button" class="hub-back" id="math-level-back">← Volver a niveles</button><span>Necesitas 2 de 3 respuestas correctas para desbloquear el siguiente nivel.</span></div>');
+ const field=document.querySelector("#math-answer"),feedback=document.querySelector("#math-feedback");
+ const render=()=>{if(index>=questions.length){if(correct>=2){const next=Math.min(7,level+1);localStorage.setItem("juegamente-math-unlocked",String(Math.max(Number(localStorage.getItem("juegamente-math-unlocked")||0),next)));}showResult("¡Nivel completado!","Respuestas correctas: "+correct+" de "+questions.length+". "+(correct>=2&&level<7?"Has desbloqueado el siguiente nivel.":"Puedes repetirlo para mejorar tu resultado."));const back=document.createElement("button");back.className="hub-back";back.textContent="← Volver a niveles";back.addEventListener("click",()=>renderCategoryHub("math"));gameContent.appendChild(back);return;}checking=false;document.querySelector("#math-index").textContent=index+1;document.querySelector("#math-question").textContent=questions[index].q;field.value="";feedback.textContent="";document.querySelector("#math-explanation").hidden=true;const ctx=document.querySelector("#math-board").getContext("2d");ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);};
+ document.querySelectorAll("[data-insert]").forEach(b=>b.addEventListener("click",()=>{field.focus();field.executeCommand(["insert",b.dataset.insert]);}));
+ document.querySelector("#show-math-keyboard").addEventListener("click",()=>{field.focus();if(window.mathVirtualKeyboard)window.mathVirtualKeyboard.show();});
+ document.querySelector("#check-math").addEventListener("click",()=>{if(checking)return;const raw=field.getValue("ascii-math"),value=evaluateMathExpression(raw),expected=Number(questions[index].a);if(value===null||!Number.isFinite(expected)||Math.abs(value-expected)>Math.max(1e-7,Math.abs(expected)*1e-7)){feedback.textContent="Todavía no coincide. Revisa las operaciones, los signos y las unidades.";feedback.className="math-feedback bad";return;}checking=true;correct++;addPoints(25);feedback.textContent="¡Correcto! +25 puntos.";feedback.className="math-feedback good";const ex=document.querySelector("#math-explanation");ex.hidden=false;ex.textContent="Desarrollo orientativo: "+questions[index].ex;setTimeout(()=>{if(!modal.classList.contains("is-open"))return;index++;render();},1600);});
+ document.querySelector("#math-level-back").addEventListener("click",()=>renderCategoryHub("math"));
+ setupMathBoard();render();
+}
+
+/* One routing table replaces the accumulated wrapper chain. */
+openGame=function(id){
+ currentGame=id;score=0;locked=false;stopTimer();
+ if(precisionIntervalId!==null){clearInterval(precisionIntervalId);precisionIntervalId=null;}
+ if(!modal.classList.contains("is-open")){modal.classList.add("is-open");modal.setAttribute("aria-hidden","false");document.body.classList.add("game-open");}
+ updateScore();
+ if(categoryHubs[id]){renderCategoryHub(id);return;}
+ const routes={
+  riddle:logicGame,anagram:anagramGame,cryptogram:cryptogramGame,oddword:oddWordGame,
+  analogy:analogyGame,spelling:spellingGame,hiddenword:hiddenWordGame,reading:readingGame,
+  palindrome:palindromeGame,wordchain:wordChainGame,crossword:crosswordGame,
+  wordguess:wordGuessGame,wordriddle:wordRiddleGame,wordmix:wordMixGame,
+  precision:precisionGame,coldsurvival:coldSurvivalGame,nightwatch:nightWatchGame,
+  targetrush:arcadeGame,island:survivalGame,
+  sequence:sequenceGame,numbermemory:numberMemoryGame,science:()=>quizGame("Ciencia y naturaleza","Responde preguntas de ciencia.",scienceQuestions,50),
+  geography:()=>quizGame("Geografía","Países, capitales y lugares.",geographyQuestions,50),
+  history:()=>quizGame("Historia","Acontecimientos y civilizaciones.",historyQuestions,50),
+  pattern:patternGame,deduction:deductionGame,dailywords:wordGuessGame,quickmath:quickMathGame
+ };
+ if(id.startsWith("level:")){mathLevelGame(Number(id.split(":")[1]));return;}
+ (routes[id]||originalOpenGame)(id);
+};
