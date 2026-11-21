@@ -818,13 +818,14 @@ function wordGuessGame(){
 }
 
 function cryptogramGame(){
+  const session=gameSessionRevision;
   let index=0,correct=0,lockedCrypto=false,hintUsed=false,revealed=false;
   const deck=[...crypticWordChallenges];
   setGame("Criptogramas de palabras","Interpreta definiciones, dobles sentidos y construcciones. No se trata de sustituir letras.",'<div class="game-meta"><span>Enigma <b id="crypto-index">1</b>/'+deck.length+'</span><span>Hasta 30 puntos por solución</span></div><div class="cryptic-card"><span class="cryptic-label">PISTA CRÍPTICA</span><p id="cryptic-clue"></p></div><div class="cryptic-hint-row"><button type="button" class="hub-back" id="cryptic-hint">Pedir una pista</button><button type="button" class="hub-back" id="cryptic-reveal">Ver construcción</button></div><p class="game-hint" id="cryptic-extra" aria-live="polite"></p>'+textAnswerForm("Escribe la palabra que se forma"));
   const render=()=>{if(index>=deck.length){showResult("¡Descifraste las palabras!","Respuestas correctas: "+correct+" de "+deck.length+".");return;}lockedCrypto=false;hintUsed=false;revealed=false;document.querySelector("#crypto-index").textContent=index+1;document.querySelector("#cryptic-clue").textContent=deck[index].clue;document.querySelector("#cryptic-extra").textContent="";document.querySelector("#text-answer").value="";document.querySelector("#text-feedback").textContent="";};
   document.querySelector("#cryptic-hint").addEventListener("click",()=>{if(lockedCrypto)return;hintUsed=true;document.querySelector("#cryptic-extra").textContent=deck[index].hint;});
   document.querySelector("#cryptic-reveal").addEventListener("click",()=>{if(lockedCrypto)return;revealed=true;document.querySelector("#cryptic-extra").textContent="Construcción: "+deck[index].parts+". "+deck[index].explain;});
-  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(lockedCrypto)return;if(normText(document.querySelector("#text-answer").value)===normText(deck[index].answer)){lockedCrypto=true;correct++;const earned=revealed?0:hintUsed?15:30;if(earned)addPoints(earned);document.querySelector("#text-feedback").textContent="¡Exacto! "+deck[index].explain+(earned?" +"+earned+" puntos.":"");setTimeout(()=>{index++;render();},1300);}else document.querySelector("#text-feedback").textContent="No coincide. Piensa en las ideas y palabras que forman la respuesta.";});
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(lockedCrypto)return;if(normText(document.querySelector("#text-answer").value)===normText(deck[index].answer)){lockedCrypto=true;correct++;const earned=revealed?0:hintUsed?15:30;if(earned)addPoints(earned);document.querySelector("#text-feedback").textContent="¡Exacto! "+deck[index].explain+(earned?" +"+earned+" puntos.":"");setTimeout(()=>{if(session!==gameSessionRevision||!modal.classList.contains("is-open"))return;index++;render();},1300);}else document.querySelector("#text-feedback").textContent="No coincide. Piensa en las ideas y palabras que forman la respuesta.";});
   render();
 }
 
