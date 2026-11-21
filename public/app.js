@@ -238,8 +238,8 @@ const categoryHubs = {
   logic: {title:"Acertijos y lógica",tag:"LABORATORIO DEL LENGUAJE",intro:"Descifra, interpreta, relaciona y juega con las palabras.",items:[
     ["riddle","Acertijos clásicos","Enigmas y deducción","◇"],
     ["anagram","Anagramas","Reordena letras y descubre palabras","↔"],
-    ["cryptogram","Criptogramas","Descifra mensajes secretos","⌁"],
-    ["oddword","Palabra intrusa","Encuentra el término que no encaja","!"],
+    ["cryptogram","Enigmas de palabras","Descompón conceptos y descubre palabras ocultas","⌁"],
+    ["oddword","Conexiones de palabras","Agrupa 16 palabras en cuatro familias ocultas","!"],
     ["analogy","Analogías verbales","Descubre relaciones entre conceptos","≈"],
     ["spelling","Detective ortográfico","Encuentra el error escondido","✎"],
     ["hiddenword","Palabra oculta","Completa la palabra a partir de pistas","▦"],
@@ -479,6 +479,8 @@ function wordChainGame(){const chain=[{start:"CASA",next:"SÁBADO",hint:"Empieza
 /* JUEGAMENTE 0.4 — deeper word puzzles, 4x4 category connections, story maths */
 const previousOpenGameV04 = openGame;
 categoryHubs.logic.items.push(["crossword","Crucigrama","Cruza palabras con pistas horizontales y verticales","▦"]);
+categoryHubs.logic.items.find(item=>item[0]==="cryptogram")[1]="Enigmas de palabras";
+categoryHubs.logic.items.find(item=>item[0]==="oddword")[1]="Conexiones de palabras";
 categoryHubs.daily.items = [
   ["dailywords","Palabra del día · Misterio","Descubre la palabra con pistas graduales","?"],
   ["wordguess","Palabra del día · Intentos","Deduce la palabra y analiza tus letras","Aa"],
@@ -509,7 +511,7 @@ const connectionSets = [
 function oddWordGame(){
   const tiles=connectionSets.flatMap((group,g)=>group.words.map(word=>({word,group:g}))).sort(()=>Math.random()-.5);
   let selected=[],solved=[],mistakes=0;
-  setGame("Palabra intrusa","Hay 16 palabras y cuatro familias ocultas. Selecciona cuatro que pertenezcan a la misma categoría y conéctalas. Al acertar, descubrirás su nombre.",'<div class="connection-status"><span id="connection-progress">0 de 4 categorías descubiertas</span><span>Errores: <b id="connection-errors">0</b>/4</span></div><div class="connection-grid" id="connection-grid"></div><div class="connection-controls"><span id="connection-selected">Selecciona cuatro palabras</span><button class="math-check" id="connection-check" type="button" disabled>Conectar grupo</button></div><p class="game-hint" id="connection-feedback" aria-live="polite"></p><div id="connection-solved" class="connection-solved"></div>');
+  setGame("Conexiones de palabras","Hay 16 palabras y cuatro familias ocultas. Selecciona cuatro que pertenezcan a la misma categoría y conéctalas. Al acertar, descubrirás su nombre.",'<div class="connection-status"><span id="connection-progress">0 de 4 categorías descubiertas</span><span>Errores: <b id="connection-errors">0</b>/4</span></div><div class="connection-grid" id="connection-grid"></div><div class="connection-controls"><span id="connection-selected">Selecciona cuatro palabras</span><button class="math-check" id="connection-check" type="button" disabled>Conectar grupo</button></div><p class="game-hint" id="connection-feedback" aria-live="polite"></p><div id="connection-solved" class="connection-solved"></div>');
   const grid=document.querySelector("#connection-grid");
   const render=()=>{
     grid.innerHTML="";
@@ -586,11 +588,11 @@ function wordGuessGame(){
 function dailyWordGame(){wordRiddleGame();}
 function wordRiddleGame(){
   const puzzle=wordOfDayPuzzles[Math.floor((Date.now()/86400000)%wordOfDayPuzzles.length)];
-  let clue=0,usedHint=false;
-  setGame("Palabra del día · Enigma","Resuelve una definición ambigua. Puedes pedir pistas, pero cada pista reduce la puntuación.",'<div class="game-meta"><span>Pistas usadas: <b id="word-hints">0</b>/3</span><span>Premio máximo: 45 puntos</span></div><div class="cryptic-card"><span class="cryptic-label">ENIGMA DEL DÍA</span><p id="word-riddle-clue"></p></div><button type="button" class="hub-back" id="word-next-hint">Revelar siguiente pista</button>'+textAnswerForm("¿Qué palabra es?"));
+  let clue=0;
+  setGame("Palabra del día · Enigma","Resuelve una definición ambigua. Puedes pedir pistas, pero cada pista reduce la puntuación.",'<div class="game-meta"><span>Pista revelada: <b id="word-hints">1</b>/3</span><span>Premio máximo: 45 puntos</span></div><div class="cryptic-card"><span class="cryptic-label">ENIGMA DEL DÍA</span><p id="word-riddle-clue"></p></div><button type="button" class="hub-back" id="word-next-hint">Revelar siguiente pista</button>'+textAnswerForm("¿Qué palabra es?"));
   const clueNode=document.querySelector("#word-riddle-clue");clueNode.textContent=puzzle.clues[0];
-  document.querySelector("#word-next-hint").addEventListener("click",()=>{if(clue<2){clue++;usedHint=true;document.querySelector("#word-hints").textContent=clue;clueNode.textContent=puzzle.clues[clue];}});
-  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(puzzle.word)){addPoints(usedHint?15:45);document.querySelector("#text-feedback").textContent="¡Correcto! "+puzzle.definition;showResult("¡Enigma resuelto!","La palabra era "+puzzle.word.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No es esa. Busca una palabra que encaje con todas las pistas.";});
+  document.querySelector("#word-next-hint").addEventListener("click",()=>{if(clue<2){clue++;document.querySelector("#word-hints").textContent=clue+1;clueNode.textContent=puzzle.clues[clue];}});
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(puzzle.word)){addPoints(Math.max(15,45-clue*15));document.querySelector("#text-feedback").textContent="¡Correcto! "+puzzle.definition;showResult("¡Enigma resuelto!","La palabra era "+puzzle.word.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No es esa. Busca una palabra que encaje con todas las pistas.";});
 }
 function crosswordGame(){
   const entries=[
@@ -869,4 +871,29 @@ openGame=function(id){
  };
  if(id.startsWith("level:")){mathLevelGame(Number(id.split(":")[1]));return;}
  (routes[id]||originalOpenGame)(id);
+};
+
+/* 0.5.1 — Spanish notation and riddle validation */
+const evaluateMathExpressionBeforeLocale=evaluateMathExpression;
+evaluateMathExpression=function(source){
+ let value=String(source).trim();
+ value=value.replace(/[$€£]/g,"").replace(/[−–]/g,"-").replace(/[×·]/g,"*").replace(/÷/g,"/");
+ if(/^\d{1,3}(?:\.\d{3})+$/.test(value))value=value.replace(/\./g,"");
+ return evaluateMathExpressionBeforeLocale(value);
+};
+let gameSessionRevision=0;
+const previousOpenGameFinal=openGame;
+openGame=function(id){gameSessionRevision++;previousOpenGameFinal(id);};
+logicGame=function(){
+ const session=gameSessionRevision;let index=0,answered=false;
+ setGame("Acertijos de ingenio","Lee con atención y escribe una respuesta concreta. Cada solución correcta suma 20 puntos.",'<div class="game-meta"><span>Acertijo <b id="question-number">1</b>/'+riddles.length+'</span><span>Tiempo: <b id="game-timer">60 s</b></span></div><div class="quiz-question" id="question-text"></div><form id="riddle-form" class="answer-form"><input id="riddle-answer" autocomplete="off" placeholder="Escribe tu respuesta" required><button class="button button-primary" type="submit">Responder</button></form><p class="game-hint" id="riddle-feedback" aria-live="polite"></p>');
+ const render=()=>{if(index>=riddles.length){showResult("¡Mente brillante!","Has terminado los tres acertijos.");return;}answered=false;document.querySelector("#question-number").textContent=index+1;document.querySelector("#question-text").textContent=riddles[index].q;document.querySelector("#riddle-answer").value="";};
+ document.querySelector("#riddle-form").addEventListener("submit",event=>{event.preventDefault();if(answered)return;const answer=normText(document.querySelector("#riddle-answer").value);if(!answer)return;answered=true;const accepted=riddles[index].a.some(option=>normText(option)===answer);if(accepted){addPoints(20);document.querySelector("#riddle-feedback").textContent="¡Exacto! +20 puntos";}else document.querySelector("#riddle-feedback").textContent="La respuesta esperada era: "+riddles[index].a[0]+".";setTimeout(()=>{if(session!==gameSessionRevision||!modal.classList.contains("is-open"))return;index++;render();},900);});
+ render();startTimer(60,()=>showResult("¡Tiempo terminado!","Resueltos: "+index+" de "+riddles.length+" acertijos."));
+};
+quizGame=function(title,description,questions,time=40){
+ const session=gameSessionRevision;let index=0,answered=false,correct=0;
+ setGame(title,description,'<div class="game-meta"><span>Pregunta <b id="question-number">1</b>/'+questions.length+'</span><span>Tiempo: <b id="game-timer">'+time+' s</b></span></div><div class="quiz-question" id="question-text"></div><div class="quiz-options" id="quiz-options"></div><p class="game-hint" id="quiz-feedback" aria-live="polite"></p>');
+ const render=()=>{if(index>=questions.length){showResult("¡Desafío completado!","Respuestas correctas: "+correct+" de "+questions.length+".");return;}answered=false;const q=questions[index];document.querySelector("#question-number").textContent=index+1;document.querySelector("#question-text").textContent=q.q;document.querySelector("#quiz-feedback").textContent="";const options=document.querySelector("#quiz-options");options.innerHTML="";q.opts.forEach(option=>{const b=document.createElement("button");b.type="button";b.className="quiz-option";b.textContent=option;b.addEventListener("click",()=>{if(answered)return;answered=true;if(normText(option)===normText(q.a)){correct++;addPoints(10);document.querySelector("#quiz-feedback").textContent="¡Correcto! +10 puntos";}else document.querySelector("#quiz-feedback").textContent="La respuesta correcta es "+q.a+".";setTimeout(()=>{if(session!==gameSessionRevision||!modal.classList.contains("is-open"))return;index++;render();},650);});options.appendChild(b);});};
+ render();startTimer(time,()=>showResult("¡Tiempo terminado!","Respuestas correctas: "+correct+" de "+questions.length+"."));
 };
