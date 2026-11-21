@@ -321,7 +321,8 @@ function renderCategoryHub(id) {
     gameContent.innerHTML = '<div class="hub-empty"><div class="hub-empty-icon">✦</div><h3>Estamos preparando esta categoría</h3><p>Queremos que tenga minijuegos completos, con mecánicas propias y progresión. Volverá a estar disponible en una próxima actualización.</p></div>';
     return;
   }
-  gameContent.innerHTML = '<div class="hub-heading"><span>'+hub.tag+'</span><span>'+String(hub.items.length).padStart(2,"0")+' MODOS</span></div><div class="hub-grid">'+hub.items.map((item,index)=>'<button type="button" class="hub-item" data-hub-game="'+item[0]+'"><span class="hub-item-icon">'+item[3]+'</span><span class="hub-item-copy"><b>'+item[1]+'</b><small>'+item[2]+'</small></span><span class="hub-item-arrow">↗</span></button>').join("")+'</div><button type="button" class="hub-back" id="hub-back">← Volver al inicio</button>';
+  const unlockedMath = Number(localStorage.getItem("juegamente-math-unlocked") || 0);
+  gameContent.innerHTML = '<div class="hub-heading"><span>'+hub.tag+'</span><span>'+String(hub.items.length).padStart(2,"0")+' MODOS</span></div>'+(id==="math"?'<p class="math-unlock-note">Completa los niveles en orden para desbloquear el siguiente. Nivel disponible: '+(unlockedMath+1)+'/8.</p>':'')+'<div class="hub-grid">'+hub.items.map((item,index)=>{const lockedLevel=id==="math"&&Number(item[0].split(":")[1])>unlockedMath;return '<button type="button" class="hub-item '+(lockedLevel?'hub-item-locked':'')+'" data-hub-game="'+item[0]+'" '+(lockedLevel?'disabled':'')+'><span class="hub-item-icon">'+(lockedLevel?'🔒':item[3])+'</span><span class="hub-item-copy"><b>'+item[1]+'</b><small>'+item[2]+'</small></span><span class="hub-item-arrow">'+(lockedLevel?'Bloqueado':'↗')+'</span></button>';}).join("")+'</div><button type="button" class="hub-back" id="hub-back">← Volver al inicio</button>';
   gameContent.querySelectorAll("[data-hub-game]").forEach(button=>button.addEventListener("click",()=>openGame(button.dataset.hubGame)));
   document.querySelector("#hub-back").addEventListener("click",closeGame);
 }
@@ -414,19 +415,19 @@ const mathLevels=[
 function mathLevelGame(level){
   const data=mathLevels[level];let index=0,correct=0;
   const questions=[...data.questions].sort(()=>Math.random()-.5);
-  setGame("Matemáticas · "+data.title,data.desc+' Cada ejercicio correcto suma 20 puntos.', '<div class="math-progress"><span>Nivel '+(level+1)+' de 8</span><span>Ejercicio <b id="math-index">1</b>/'+questions.length+'</span></div><div class="math-question" id="math-question"></div><div class="math-workspace"><div class="math-input-area"><label for="math-answer">Tu respuesta matemática</label><math-field id="math-answer" virtual-keyboard-mode="manual" smart-fence></math-field><div class="math-symbol-row"><button type="button" data-insert="\frac{#@}{#?}">a/b</button><button type="button" data-insert="^{#?}">x²</button><button type="button" data-insert="\sqrt{#0}">√</button><button type="button" data-insert="\pi">π</button><button type="button" data-insert="\log\left(#0\right)">log</button><button type="button" data-insert="\sin\left(#0\right)">sen</button><button type="button" data-insert="\cdot">·</button><button type="button" data-insert="\le">≤</button><button type="button" data-insert="\infty">∞</button></div><div class="math-actions"><button type="button" class="math-keyboard" id="show-math-keyboard">⌨ Teclado matemático</button><button type="button" class="math-check" id="check-math">Comprobar respuesta</button></div><p class="game-hint" id="math-feedback" aria-live="polite"></p></div><div class="math-board-area"><div class="board-heading"><b>Mi pizarra</b><button type="button" id="clear-board">Limpiar</button></div><canvas id="math-board" aria-label="Pizarra para desarrollar el ejercicio"></canvas><small>Escribe o dibuja con el mouse, lápiz o dedo.</small></div></div><div class="math-explanation" id="math-explanation" hidden></div><div class="math-level-footer"><button type="button" class="hub-back" id="math-level-back">← Niveles</button><span>Tu progreso se guarda en este dispositivo.</span></div>');
+  setGame("Matemáticas · "+data.title,data.desc+' Cada ejercicio correcto suma 20 puntos.', '<div class="math-progress"><span>Nivel '+(level+1)+' de 8</span><span>Ejercicio <b id="math-index">1</b>/'+questions.length+'</span></div><div class="math-question" id="math-question"></div><div class="math-workspace"><div class="math-input-area"><label for="math-answer">Tu respuesta matemática</label><math-field id="math-answer" virtual-keyboard-mode="manual" smart-fence></math-field><div class="math-symbol-row"><button type="button" data-insert="\\frac{#@}{#?}">a/b</button><button type="button" data-insert="^{#?}">x²</button><button type="button" data-insert="\\sqrt{#0}">√</button><button type="button" data-insert="\\pi">π</button><button type="button" data-insert="\\log\left(#0\right)">log</button><button type="button" data-insert="\\sin\left(#0\right)">sen</button><button type="button" data-insert="\\cdot">·</button><button type="button" data-insert="\\le">≤</button><button type="button" data-insert="\\infty">∞</button></div><div class="math-actions"><button type="button" class="math-keyboard" id="show-math-keyboard">⌨ Teclado matemático</button><button type="button" class="math-check" id="check-math">Comprobar respuesta</button></div><p class="game-hint" id="math-feedback" aria-live="polite"></p></div><div class="math-board-area"><div class="board-heading"><b>Mi pizarra</b><button type="button" id="clear-board">Limpiar</button></div><canvas id="math-board" aria-label="Pizarra para desarrollar el ejercicio"></canvas><small>Escribe o dibuja con el mouse, lápiz o dedo.</small></div></div><div class="math-explanation" id="math-explanation" hidden></div><div class="math-level-footer"><button type="button" class="hub-back" id="math-level-back">← Niveles</button><span>Tu progreso se guarda en este dispositivo.</span></div>');
   const field=document.querySelector("#math-answer");
   const feedback=document.querySelector("#math-feedback");
-  const render=()=>{if(index>=questions.length){showResult("¡Nivel completado!", "Respuestas correctas: "+correct+" de "+questions.length+". Puedes volver a elegir un nivel o seguir avanzando.");return;}document.querySelector("#math-index").textContent=index+1;document.querySelector("#math-question").textContent=questions[index].q;field.value="";feedback.textContent="";document.querySelector("#math-explanation").hidden=true;};
+  const render=()=>{if(index>=questions.length){if(correct>=2){const next=Math.min(7,level+1);localStorage.setItem("juegamente-math-unlocked",String(Math.max(Number(localStorage.getItem("juegamente-math-unlocked")||0),next)));}showResult("¡Nivel completado!", "Respuestas correctas: "+correct+" de "+questions.length+". "+(correct>=2&&level<7?"Has desbloqueado el siguiente nivel.":"Puedes volver a practicar para mejorar tu resultado."));const back=document.createElement("button");back.type="button";back.className="hub-back";back.textContent="← Volver a niveles";back.addEventListener("click",()=>renderCategoryHub("math"));gameContent.appendChild(back);return;}document.querySelector("#math-index").textContent=index+1;document.querySelector("#math-question").textContent=questions[index].q;field.value="";feedback.textContent="";document.querySelector("#math-explanation").hidden=true;};
   document.querySelectorAll("[data-insert]").forEach(button=>button.addEventListener("click",()=>{field.focus();field.executeCommand(["insert",button.dataset.insert]);}));
   document.querySelector("#show-math-keyboard").addEventListener("click",()=>{field.focus();if(window.mathVirtualKeyboard){window.mathVirtualKeyboard.layouts=["numeric","symbols","alphabetic","greek"];window.mathVirtualKeyboard.show();}});
   document.querySelector("#check-math").addEventListener("click",()=>{
     const raw=field.getValue("ascii-math").trim();
     const normalized=raw.replace(/\s/g,"").replace(/,/g,".").replace(/[{}]/g,"").toLowerCase();
     const expected=questions[index].a.replace(/\s/g,"").replace(/,/g,".").toLowerCase();
-    const numeric=Number(normalized);
+    const numeric=evaluateMathExpression(normalized);
     const numericExpected=Number(expected);
-    const correctAnswer=normalized===expected || (normalized!=="" && Number.isFinite(numeric) && Number.isFinite(numericExpected) && Math.abs(numeric-numericExpected)<0.0001);
+    const correctAnswer=normalized===expected || (numeric!==null && Number.isFinite(numericExpected) && Math.abs(numeric-numericExpected)<0.0001);
     if(correctAnswer){correct++;addPoints(20);feedback.textContent="¡Correcto! +20 puntos";feedback.className="math-feedback good";}else{feedback.textContent="Todavía no es correcto. Revisa tu desarrollo en la pizarra e inténtalo otra vez.";feedback.className="math-feedback bad";return;}
     const explanation=document.querySelector("#math-explanation");explanation.hidden=false;explanation.textContent="Desarrollo orientativo: "+questions[index].ex;
     setTimeout(()=>{index++;render();},1300);
@@ -445,4 +446,23 @@ function setupMathBoard(){
   canvas.addEventListener("pointermove",e=>{if(!drawing)return;const p=point(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p;});
   const stop=()=>{drawing=false;last=null;};canvas.addEventListener("pointerup",stop);canvas.addEventListener("pointercancel",stop);
   document.querySelector("#clear-board").addEventListener("click",()=>ctx.clearRect(0,0,canvas.width,canvas.height));
+}
+
+function evaluateMathExpression(source){
+  const text=source.replace(/\\s/g,"").replace(/,/g,".");
+  const tokens=text.match(/sqrt|√|\\d+(?:\\.\\d+)?|[()+\\-*/^]/gi);
+  if(!tokens || tokens.join("")!==text)return null;
+  let i=0;
+  function primary(){
+    const t=tokens[i++];
+    if(t==="+" )return primary();
+    if(t==="-")return -primary();
+    if(t==="√"||t.toLowerCase()==="sqrt"){if(tokens[i]==="("){i++;const v=expression();if(tokens[i++]!==")")throw 0;return Math.sqrt(v);}return Math.sqrt(primary());}
+    if(t==="("){const v=expression();if(tokens[i++]!==")")throw 0;return v;}
+    const n=Number(t);if(!Number.isFinite(n))throw 0;return n;
+  }
+  function power(){let v=primary();if(tokens[i]==="^"){i++;v=Math.pow(v,power());}return v;}
+  function term(){let v=power();while(tokens[i]==="*"||tokens[i]==="/"){const op=tokens[i++],r=power();v=op==="*"?v*r:v/r;}return v;}
+  function expression(){let v=term();while(tokens[i]==="+"||tokens[i]==="-"){const op=tokens[i++],r=term();v=op==="+"?v+r:v-r;}return v;}
+  try{const value=expression();return i===tokens.length&&Number.isFinite(value)?value:null;}catch(_){return null;}
 }
