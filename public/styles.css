@@ -3,3 +3,55 @@
 
 /* Category hubs and expanded learning games */
 .hub-heading{display:flex;justify-content:space-between;gap:12px;color:#9fa9c6;font-size:9px;letter-spacing:1.4px;font-weight:1000;margin:8px 0 12px}.hub-heading span:first-child{color:#8fe4df}.hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hub-item{display:flex;align-items:center;gap:12px;min-width:0;text-align:left;padding:13px;border:1px solid #ffffff18;border-radius:12px;background:#ffffff08;color:#fff;cursor:pointer;transition:transform .18s,border-color .18s,background .18s;min-height:76px}.hub-item:hover{transform:translateY(-2px);border-color:#8f7ce5;background:#ffffff10}.hub-item-icon{flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;border-radius:11px;background:#8e79e52a;color:#c2b4ff;font-size:20px;font-weight:900}.hub-item-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.hub-item-copy b{font-size:13px}.hub-item-copy small{font-size:10px;line-height:1.35;color:#aab2ca}.hub-item-arrow{margin-left:auto;color:#8c97b7}.hub-back{border:0;background:transparent;color:#aeb6d0;font:800 12px Nunito,sans-serif;padding:12px 0;cursor:pointer}.hub-empty{text-align:center;padding:38px 15px;border:1px dashed #7466ad;border-radius:15px;background:#ffffff06}.hub-empty-icon{font-size:38px;color:#b6a3ff}.hub-empty h3{margin:10px 0}.hub-empty p{max-width:390px;margin:0 auto;color:#aab2ca;font-size:13px;line-height:1.6}.word-scramble,.cipher-text,.sequence-display{padding:25px 12px;margin:12px 0;text-align:center;border:1px solid #7466ad;border-radius:14px;background:#11172b;color:#e8e3ff;font-size:clamp(22px,5vw,34px);font-weight:1000;letter-spacing:4px}.cipher-text{font-family:monospace;letter-spacing:2px;overflow-wrap:anywhere}.reading-passage{padding:18px;border:1px solid #ffffff1b;background:#11172b;border-radius:12px;color:#d5daea;font-size:14px;line-height:1.8;margin-bottom:14px}.sequence-inputs{display:flex;gap:8px;justify-content:center;margin:15px 0;flex-wrap:wrap}.sequence-inputs input{width:45px;height:48px;text-align:center;border:1px solid #7266a7;border-radius:9px;background:#11172b;color:white;font-size:18px}.math-progress{display:flex;justify-content:space-between;color:#9da8c5;font-size:11px;font-weight:900;margin:5px 0 10px}.math-question{padding:19px 15px;border-radius:13px;background:#11172b;border:1px solid #7266a7;color:#fff;text-align:center;font-size:21px;font-weight:900;margin-bottom:13px}.math-workspace{display:grid;grid-template-columns:1fr 1fr;gap:12px}.math-input-area,.math-board-area{min-width:0;border:1px solid #ffffff1a;border-radius:13px;background:#ffffff06;padding:13px}.math-input-area label{display:block;color:#b8c0d7;font-size:11px;font-weight:900;margin-bottom:9px}.math-input-area math-field{display:block;width:100%;min-height:57px;padding:10px;border:1px solid #7a6ac0;border-radius:9px;background:#10162a;color:#fff;font-size:23px;--caret-color:#69e2dc;--selection-background-color:#6151a8}.math-symbol-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.math-symbol-row button{min-width:39px;min-height:38px;padding:5px 8px;border:1px solid #6b6292;border-radius:8px;background:#292743;color:#f4f1ff;font-size:14px;font-weight:900;cursor:pointer}.math-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}.math-actions button{min-height:42px;border:0;border-radius:8px;padding:9px 12px;font:900 11px Nunito,sans-serif;cursor:pointer}.math-keyboard{background:#34304f;color:#dcd5ff}.math-check{background:linear-gradient(110deg,#9a7cff,#62d8d7);color:#111528}.math-board-area{display:flex;flex-direction:column;gap:8px}.board-heading{display:flex;justify-content:space-between;align-items:center;color:#c4cbe0;font-size:12px}.board-heading button{border:0;background:transparent;color:#79dcd8;font:800 11px Nunito,sans-serif;cursor:pointer}.math-board-area canvas{display:block;width:100%;height:170px;background-color:#141a30;background-image:linear-gradient(#ffffff0b 1px,transparent 1px),linear-gradient(90deg,#ffffff0b 1px,transparent 1px);background-size:18px 18px;border:1px solid #4e5275;border-radius:8px;touch-action:none;cursor:crosshair}.math-board-area small{color:#8994b2;font-size:9px;line-height:1.4}.math-feedback{min-height:34px;font-size:12px;font-weight:900;margin:9px 0}.math-feedback.good{color:#72e2b5}.math-feedback.bad{color:#ff9baf}.math-explanation{margin-top:10px;padding:12px;border-radius:9px;background:#17443e;color:#a9f0d4;font-size:12px;line-height:1.6}.math-level-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.math-level-footer span{color:#8792b0;font-size:10px}@media(max-width:600px){.hub-grid{grid-template-columns:1fr}.hub-item{min-height:68px}.math-workspace{grid-template-columns:1fr}.math-board-area canvas{height:145px}.math-level-footer{align-items:flex-start}.game-panel{overflow-x:hidden}}
+
+/* JUEGAMENTE 0.4 — connection puzzles, cryptic clues, crossword and narrative math */
+.connection-status{display:flex;justify-content:space-between;gap:10px;color:#aeb9d5;font-size:11px;font-weight:900;margin:8px 0 12px}
+.connection-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.connection-tile{min-height:78px;padding:8px 4px;border:1px solid #535b80;border-radius:11px;background:#11182e;color:#e9edff;font:900 clamp(10px,1.6vw,14px) Nunito,sans-serif;cursor:pointer;overflow-wrap:anywhere;transition:.16s}
+.connection-tile:hover{border-color:#a18cff;background:#242545}
+.connection-tile.selected{border:2px solid #a994ff;background:linear-gradient(140deg,#54478c,#2b3d62);box-shadow:0 0 0 2px #8f7cff33;transform:translateY(-2px)}
+.connection-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px;color:#aeb9d5;font-size:11px}
+.connection-controls button{min-height:42px}
+.connection-solved{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.connection-reveal{display:flex;flex-direction:column;gap:5px;padding:10px;border-radius:9px;border:1px solid #5d9c8b;background:#173d3a;color:#aaf1d9}
+.connection-reveal b{font-size:12px}.connection-reveal span{font-size:10px;line-height:1.4;color:#c2d9d3}
+.cryptic-card{padding:20px;border:1px solid #7666a9;border-radius:14px;background:linear-gradient(140deg,#252342,#11182d);margin:13px 0}
+.cryptic-label{font-size:9px;letter-spacing:1.5px;color:#a99bff;font-weight:1000}
+.cryptic-card p{font-size:17px;line-height:1.65;font-weight:800;color:#f0efff;margin:10px 0 0}
+.cryptic-hint-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.word-guess-board{display:flex;flex-direction:column;gap:7px;align-items:center;margin:14px 0}
+.word-guess-row{display:flex;gap:7px}
+.word-guess-cell{width:39px;height:39px;display:grid;place-items:center;border:1px solid #65708f;border-radius:7px;background:#11182d;color:#fff;font-weight:1000}
+.word-guess-cell.exact{background:#287b61;border-color:#55d2a2}
+.word-guess-cell.present{background:#9b782e;border-color:#eac45d}
+.word-guess-cell.absent{background:#33394f;border-color:#444b64;color:#aab1c4}
+.crossword-layout{display:grid;grid-template-columns:minmax(170px,1fr) minmax(180px,1fr);gap:18px;align-items:start}
+.crossword-board{display:grid;grid-template-columns:repeat(4,minmax(34px,1fr));gap:3px;max-width:300px;aspect-ratio:1}
+.crossword-cell{position:relative;min-width:0;aspect-ratio:1;background:#f0f1fa;border-radius:3px}
+.crossword-cell.blocked{background:#10162a}
+.crossword-cell small{position:absolute;top:2px;left:3px;color:#31344c;font-size:8px;font-weight:900;z-index:1}
+.crossword-cell input{width:100%;height:100%;border:0;background:transparent;text-align:center;text-transform:uppercase;color:#16182b;font-weight:1000;font-size:clamp(15px,2.5vw,22px);outline:0}
+.crossword-cell:focus-within{outline:2px solid #9c86ff;outline-offset:1px}
+.crossword-clues{color:#c5cce0;font-size:12px;line-height:1.65}
+.crossword-clues b{display:block;color:#a99bff;margin:5px 0}
+.crossword-clues ol{padding-left:22px;margin:5px 0 14px}
+.math-story-card{padding:16px 18px;margin:10px 0 14px;border:1px solid #7666a9;border-radius:13px;background:linear-gradient(135deg,#252442,#131a30)}
+.math-story-card span{font-size:9px;letter-spacing:1.5px;color:#a99bff;font-weight:1000}
+.math-story-card p{font-size:14px;line-height:1.7;color:#eef0ff;font-weight:750;margin:8px 0 0}
+.math-workspace-wide{grid-template-columns:minmax(0,1.6fr) minmax(230px,.85fr);align-items:stretch}
+.math-board-large{min-height:320px}
+.math-board-large canvas{height:300px;min-height:300px;background-size:22px 22px}
+.math-answer-side{display:flex;flex-direction:column;align-items:stretch}
+.math-answer-side math-field{min-height:65px;font-size:24px}
+.math-answer-side .math-actions{margin-top:auto;padding-top:12px}
+.math-answer-side .math-check{flex:1}
+@media(max-width:650px){
+ .connection-grid{gap:5px}.connection-tile{min-height:65px;font-size:10px;padding:5px 2px}
+ .connection-controls{align-items:stretch;flex-direction:column}.connection-controls button{width:100%}
+ .connection-solved{grid-template-columns:1fr}
+ .math-workspace-wide{grid-template-columns:1fr}
+ .math-board-large canvas{height:230px;min-height:230px}
+ .crossword-layout{grid-template-columns:1fr}
+ .crossword-board{width:100%;max-width:280px;margin:auto}
+ .word-guess-cell{width:34px;height:34px}
+}
