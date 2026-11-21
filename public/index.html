@@ -23,7 +23,7 @@
     <nav class="main-nav" aria-label="Navegación principal">
       <a class="active" href="#inicio">Inicio</a>
       <a href="#categorias">Juegos</a>
-      <a href="#reto">Reto diario</a>
+      <a href="#juego" data-game="daily">Reto diario</a>
       <a href="#ranking">Clasificación</a>
     </nav>
     <a class="header-button" href="#registro">Entrar <span aria-hidden="true">↗</span></a>
@@ -72,19 +72,19 @@
         <p>Hay un desafío para cada tipo de mente.</p>
       </div>
       <div class="category-grid">
-        <a class="category-card card-purple" href="#proximamente"><span class="category-icon">◇</span><span class="category-number">01 / INGENIO</span><h3>Acertijos y lógica</h3><p>Encuentra patrones y resuelve misterios.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-pink" href="#proximamente"><span class="category-icon">⚡</span><span class="category-number">02 / REFLEJOS</span><h3>Habilidad arcade</h3><p>Velocidad, precisión y coordinación.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-blue" href="#proximamente"><span class="category-icon">♜</span><span class="category-number">03 / TÁCTICA</span><h3>Estrategia</h3><p>Piensa varios movimientos por delante.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-orange" href="#proximamente"><span class="category-icon">∑</span><span class="category-number">04 / NÚMEROS</span><h3>Matemáticas</h3><p>Calcula rápido y domina los números.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-green" href="#proximamente"><span class="category-icon">◉</span><span class="category-number">05 / MEMORIA</span><h3>Memoria y concentración</h3><p>Entrena tu atención y recuerda más.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-yellow" href="#proximamente"><span class="category-icon">✦</span><span class="category-number">06 / CONOCIMIENTO</span><h3>Trivia y cultura</h3><p>Demuestra cuánto sabes del mundo.</p><span class="card-arrow">↗</span></a>
-        <a class="category-card card-red" href="#proximamente"><span class="category-icon">♧</span><span class="category-number">07 / SUPERVIVENCIA</span><h3>Supervivencia</h3><p>Adáptate, decide y resiste.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-purple" href="#juego" data-game="logic"><span class="category-icon">◇</span><span class="category-number">01 / INGENIO</span><h3>Acertijos y lógica</h3><p>Encuentra patrones y resuelve misterios.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-pink" href="#juego" data-game="arcade"><span class="category-icon">⚡</span><span class="category-number">02 / REFLEJOS</span><h3>Habilidad arcade</h3><p>Velocidad, precisión y coordinación.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-blue" href="#juego" data-game="strategy"><span class="category-icon">♜</span><span class="category-number">03 / TÁCTICA</span><h3>Estrategia</h3><p>Piensa varios movimientos por delante.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-orange" href="#juego" data-game="math"><span class="category-icon">∑</span><span class="category-number">04 / NÚMEROS</span><h3>Matemáticas</h3><p>Calcula rápido y domina los números.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-green" href="#juego" data-game="memory"><span class="category-icon">◉</span><span class="category-number">05 / MEMORIA</span><h3>Memoria y concentración</h3><p>Entrena tu atención y recuerda más.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-yellow" href="#juego" data-game="trivia"><span class="category-icon">✦</span><span class="category-number">06 / CONOCIMIENTO</span><h3>Trivia y cultura</h3><p>Demuestra cuánto sabes del mundo.</p><span class="card-arrow">↗</span></a>
+        <a class="category-card card-red" href="#juego" data-game="survival"><span class="category-icon">♧</span><span class="category-number">07 / SUPERVIVENCIA</span><h3>Supervivencia</h3><p>Adáptate, decide y resiste.</p><span class="card-arrow">↗</span></a>
         <a class="category-card card-cyan" href="#reto"><span class="category-icon">◷</span><span class="category-number">08 / CONTRARRELOJ</span><h3>Retos diarios</h3><p>Un nuevo desafío cada día.</p><span class="card-arrow">↗</span></a>
       </div>
     </section>
 
     <section class="daily section-wrap" id="reto">
-      <div class="daily-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> DESAFÍO DESTACADO</div><h2>Un minuto.<br><span class="gradient-text">Un gran reto.</span></h2><p>Muy pronto podrás competir en desafíos diarios, sumar puntos y escalar posiciones.</p><a class="button button-primary" href="#proximamente">Próximamente <span>→</span></a></div>
+      <div class="daily-copy"><div class="eyebrow"><span class="eyebrow-dot"></span> DESAFÍO DESTACADO</div><h2>Un minuto.<br><span class="gradient-text">Un gran reto.</span></h2><p>Muy pronto podrás competir en desafíos diarios, sumar puntos y escalar posiciones.</p><a class="button button-primary" href="#juego" data-game="daily">Jugar reto diario <span>→</span></a></div>
       <div class="daily-preview"><div class="daily-chip">RETO DIARIO <span>COMING SOON</span></div><div class="big-question">?</div><div class="daily-lines"><i></i><i></i><i></i></div><div class="daily-bottom"><span>PIENSA RÁPIDO</span><span>01:00</span></div></div>
     </section>
 
@@ -94,6 +94,16 @@
     </section>
   </main>
 
+  <section class="game-modal" id="juego" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="game-title">
+    <div class="game-panel">
+      <button class="game-close" type="button" aria-label="Cerrar juego">×</button>
+      <div class="eyebrow">JUEGAMENTE ARCADE</div>
+      <h2 id="game-title">¡A jugar!</h2>
+      <p id="game-description" class="game-description"></p>
+      <div id="game-content"></div>
+      <div class="game-footer"><span id="game-score">Puntos: 0</span><span id="game-record">Récord: 0</span></div>
+    </div>
+  </section>
   <footer class="site-footer" id="registro"><a class="brand" href="/"><span class="brand-mark">J<span>!</span></span><span class="brand-name">juega<span>mente</span></span></a><p>Piensa · Juega · Supera</p><span>© <span id="year"></span> Juegamente. Hecho para mentes inquietas.</span></footer>
 </body>
 </html>
