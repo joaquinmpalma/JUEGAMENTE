@@ -689,11 +689,11 @@ openGame=function(id){
  previousOpenGameV05(id);
 };
 function precisionGame(){
- let round=0,hits=0,position=0,direction=1,interval=null;
+ let round=0,hits=0,position=0,direction=1;
  setGame("Pulso de precisión","El marcador se mueve. Detenlo cuando esté dentro de la zona luminosa. La zona se estrecha en cada ronda.",'<div class="game-meta"><span>Ronda <b id="precision-round">1</b>/5</span><span>Perfectos: <b id="precision-hits">0</b></span></div><div class="precision-track"><div class="precision-zone" id="precision-zone"></div><div class="precision-marker" id="precision-marker"></div></div><button class="math-check precision-stop" id="precision-stop" type="button">¡DETENER!</button><p class="game-hint" id="precision-feedback">Pulsa cuando el marcador esté dentro de la zona.</p>');
  const marker=document.querySelector("#precision-marker"),zone=document.querySelector("#precision-zone");
- const run=()=>{round++;if(round>5){showResult("¡Prueba de precisión terminada!","Aciertos perfectos: "+hits+" de 5.");return;}document.querySelector("#precision-round").textContent=round;const width=Math.max(7,24-round*3);const left=12+Math.random()*(76-width);zone.style.left=left+"%";zone.style.width=width+"%";position=0;direction=1;marker.style.left="0%";clearInterval(interval);interval=setInterval(()=>{position+=direction*2.1;if(position>=96){position=96;direction=-1;}if(position<=0){position=0;direction=1;}marker.style.left=position+"%";},24);};
- document.querySelector("#precision-stop").addEventListener("click",()=>{if(!interval)return;clearInterval(interval);interval=null;const left=parseFloat(zone.style.left),width=parseFloat(zone.style.width);if(position>=left&&position<=left+width){hits++;addPoints(20);document.querySelector("#precision-hits").textContent=hits;document.querySelector("#precision-feedback").textContent="¡Precisión perfecta! +20 puntos.";}else document.querySelector("#precision-feedback").textContent="Fuera de la zona. Observa el ritmo y vuelve a intentarlo.";setTimeout(run,850);});
+ const run=()=>{round++;if(round>5){showResult("¡Prueba de precisión terminada!","Aciertos perfectos: "+hits+" de 5.");return;}document.querySelector("#precision-round").textContent=round;const width=Math.max(7,24-round*3);const left=12+Math.random()*(76-width);zone.style.left=left+"%";zone.style.width=width+"%";position=0;direction=1;marker.style.left="0%";if(precisionIntervalId!==null)clearInterval(precisionIntervalId);precisionIntervalId=setInterval(()=>{position+=direction*2.1;if(position>=96){position=96;direction=-1;}if(position<=0){position=0;direction=1;}marker.style.left=position+"%";},24);};
+ document.querySelector("#precision-stop").addEventListener("click",()=>{if(precisionIntervalId===null)return;clearInterval(precisionIntervalId);precisionIntervalId=null;const left=parseFloat(zone.style.left),width=parseFloat(zone.style.width);if(position>=left&&position<=left+width){hits++;addPoints(20);document.querySelector("#precision-hits").textContent=hits;document.querySelector("#precision-feedback").textContent="¡Precisión perfecta! +20 puntos.";}else document.querySelector("#precision-feedback").textContent="Fuera de la zona. Observa el ritmo y vuelve a intentarlo.";setTimeout(run,850);});
  run();
  const oldStop=stopTimer; // interval is explicitly cleared when the modal closes via next launch.
 }
@@ -709,3 +709,39 @@ function nightWatchGame(){
  const scenes=[["Un golpe seco suena en el cobertizo.","Una sombra cruza detrás del tanque."],["Se escuchan pasos lentos sobre la grava.","La radio emite una voz entre interferencias."],["Algo araña la puerta del almacén.","Una luz parpadea en el bosque."],["El generador se detiene de golpe.","Una figura aparece junto a la verja."],["La tormenta tapa todos los sonidos.","La puerta exterior queda entreabierta."],["El amanecer está cerca, pero aún queda una última ronda.","Un ruido llega desde el techo."]];
  document.querySelectorAll("[data-watch]").forEach(b=>b.addEventListener("click",()=>{const action=b.dataset.watch,scene=scenes[night-1][Math.floor(Math.random()*2)];let msg="";if(action==="listen"){msg="Esperaste y reconociste el patrón del ruido. Evitaste gastar recursos.";if(Math.random()<.55)health=Math.min(3,health+0);}if(action==="light"){if(ammo>0){ammo--;msg="Iluminaste el exterior y detectaste la amenaza a tiempo.";}else{health--;msg="La batería está agotada. Algo se acercó demasiado.";}}if(action==="hide"){msg="Apagaste las luces y permaneciste inmóvil.";if(Math.random()<.25)health--;}if(action==="ration"){if(food>0){food--;health=Math.min(3,health+1);msg="Comiste una ración y recuperaste una vida.";}else msg="No queda comida."; }if(night%2===0&&action!=="light"&&Math.random()<.35){health--;msg+=" Un ruido te tomó por sorpresa.";}document.querySelector("#watch-scene").textContent=scene;document.querySelector("#watch-detail").textContent="La estación permanece a oscuras.";document.querySelector("#watch-log").textContent=msg;night++;document.querySelector("#watch-night").textContent=Math.min(night,6);document.querySelector("#watch-health").textContent=health;document.querySelector("#watch-ammo").textContent=ammo;document.querySelector("#watch-food").textContent=food;if(health<=0)showResult("La guardia terminó","La estación no resistió. Llegaste a la noche "+(night-1)+".");else if(night>6){addPoints(50);showResult("¡Amaneció!","Sobreviviste seis noches administrando tus recursos.");}}));
 }
+
+/* Small lifecycle fixes and the third daily word mode. */
+const openGameBeforeLifecycleFix=openGame;
+openGame=function(id){
+ if(["wordguess","wordriddle","wordmix","crossword","precision","coldsurvival","nightwatch"].includes(id)){
+   currentGame=id;score=0;locked=false;stopTimer();updateScore();
+   if(!modal.classList.contains("is-open")){modal.classList.add("is-open");modal.setAttribute("aria-hidden","false");document.body.classList.add("game-open");}
+ }
+ openGameBeforeLifecycleFix(id);
+};
+categoryHubs.daily.items=[
+ ["wordguess","Palabra del día · Intentos","Descubre la palabra con seis intentos y pistas visuales","Aa"],
+ ["wordriddle","Palabra del día · Enigma","Resuelve una definición con dobles sentidos","◇"],
+ ["wordmix","Palabra del día · Letras ocultas","Reconstruye la palabra con letras mezcladas","↔"],
+ ["crossword","Crucigrama","Completa la cuadrícula con pistas cruzadas","▦"]
+];
+function wordMixGame(){
+ const p=wordOfDayPuzzles[Math.floor((Date.now()/86400000)%wordOfDayPuzzles.length)];
+ const letters=p.word.toUpperCase().split("").sort(()=>Math.random()-.5);
+ let attempts=0;
+ setGame("Palabra del día · Letras ocultas","Las letras están mezcladas. La definición es deliberadamente indirecta: encuentra la palabra del día.",'<div class="game-meta"><span>Intentos <b id="mix-attempts">0</b>/5</span><span>Longitud: '+letters.length+'</span></div><div class="word-scramble" id="mix-letters">'+letters.join(" · ")+'</div><p class="game-hint">'+p.clues[0]+'</p>'+textAnswerForm("Reconstruye la palabra"));
+ document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();attempts++;document.querySelector("#mix-attempts").textContent=attempts;if(normText(document.querySelector("#text-answer").value)===p.word){addPoints(Math.max(15,50-(attempts-1)*7));showResult("¡Palabra reconstruida!","La palabra era "+p.word.toUpperCase()+". "+p.definition);}else if(attempts>=5){showResult("Se agotaron los intentos","La palabra era "+p.word.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No coincide. Puedes usar la pista semántica y reorganizar las letras." ;document.querySelector("#text-answer").value="";});
+}
+const openGameBeforeWordMix=openGame;
+openGame=function(id){
+ if(id==="wordmix"){currentGame=id;score=0;locked=false;stopTimer();updateScore();wordMixGame();return;}
+ openGameBeforeWordMix(id);
+};
+let precisionIntervalId=null;
+const stopTimerBeforePrecisionFix=stopTimer;
+stopTimer=function(){if(precisionIntervalId!==null){clearInterval(precisionIntervalId);precisionIntervalId=null;}stopTimerBeforePrecisionFix();};
+const precisionGameBeforeCleanup=precisionGame;
+precisionGame=function(){
+ precisionGameBeforeCleanup();
+ const originalSetInterval=window.setInterval;
+};
