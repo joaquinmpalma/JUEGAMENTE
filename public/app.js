@@ -243,7 +243,9 @@ const categoryHubs = {
     ["analogy","Analogías verbales","Descubre relaciones entre conceptos","≈"],
     ["spelling","Detective ortográfico","Encuentra el error escondido","✎"],
     ["hiddenword","Palabra oculta","Completa la palabra a partir de pistas","▦"],
-    ["reading","Comprensión lectora","Lee con atención y deduce","▤"]
+    ["reading","Comprensión lectora","Lee con atención y deduce","▤"],
+    ["palindrome","Palíndromos","Reconoce palabras y frases capicúa","↔"],
+    ["wordchain","Cadena de palabras","Continúa una cadena usando la última sílaba","⛓"]
   ]},
   math:{title:"Matemáticas y cálculo",tag:"GIMNASIO MATEMÁTICO",intro:"Avanza desde las operaciones básicas hasta el cálculo universitario.",items:[
     ["level:0","Nivel 1 · Primeros pasos","Sumas y restas sencillas","＋"],
@@ -299,6 +301,8 @@ openGame = function(id) {
   if (id === "spelling") { spellingGame(); return; }
   if (id === "hiddenword") { hiddenWordGame(); return; }
   if (id === "reading") { readingGame(); return; }
+  if (id === "palindrome") { palindromeGame(); return; }
+  if (id === "wordchain") { wordChainGame(); return; }
   if (id.startsWith("level:")) { mathLevelGame(Number(id.split(":")[1])); return; }
   if (id === "sequence") { sequenceGame(); return; }
   if (id === "numbermemory") { numberMemoryGame(); return; }
@@ -345,12 +349,12 @@ function anagramGame() {
   let index=0, correct=0;
   const list=[...wordChallenges].sort(()=>Math.random()-.5);
   setGame("Anagramas","Ordena las letras para formar la palabra correcta. Cada acierto suma 15 puntos.",'<div class="game-meta"><span>Palabra <b id="word-index">1</b>/6</span><span>Aciertos: <b id="word-correct">0</b></span></div><div class="word-scramble" id="scrambled-word"></div><p class="game-hint" id="word-hint"></p>'+textAnswerForm());
-  const render=()=>{if(index>=list.length){finishSimpleGame("¡Buen vocabulario!", "Resolviste "+correct+" de 6 anagramas.");return;}document.querySelector("#word-index").textContent=index+1;document.querySelector("#scrambled-word").textContent=list[index].scramble.split("").join("  ");document.querySelector("#word-hint").textContent="Pista: "+list[index].hint;document.querySelector("#text-answer").value="";};
+  const render=()=>{if(index>=list.length){finishSimpleGame("¡Buen vocabulario!", "Resolviste "+correct+" de 6 anagramas.");return;}document.querySelector("#word-index").textContent=index+1;let letters=list[index].answer.toUpperCase().split("");let shuffled=letters.join("");while(shuffled===list[index].answer.toUpperCase()&&letters.length>2){letters.sort(()=>Math.random()-.5);shuffled=letters.join("");}document.querySelector("#scrambled-word").textContent=shuffled.split("").join("  ");document.querySelector("#word-hint").textContent="Pista: "+list[index].hint;document.querySelector("#text-answer").value="";};
   document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();const ok=normText(document.querySelector("#text-answer").value)===normText(list[index].answer);if(ok){correct++;addPoints(15);document.querySelector("#word-correct").textContent=correct;document.querySelector("#text-feedback").textContent="¡Correcto! +15 puntos";}else document.querySelector("#text-feedback").textContent="No es esa palabra. Inténtalo otra vez.";if(ok)setTimeout(()=>{index++;render();},650);});
   render();
 }
 const cryptoChallenges=[
-  {cipher:"MB DBTB FTUB FO FM CPMTRVF",answer:"la casa esta en el bosque",hint:"Cada letra se ha desplazado una posición hacia adelante en el alfabeto."},
+  {cipher:"MB DBTB FTUB FO FM CPTRVF",answer:"la casa esta en el bosque",hint:"Cada letra se ha desplazado una posición hacia adelante en el alfabeto."},
   {cipher:"IPMB NV OEP",answer:"hola mundo",hint:"Desplazamiento César: retrocede una letra para descifrar."},
   {cipher:"FM UJFNQP FT PS P",answer:"el tiempo es oro",hint:"Cada letra está desplazada una posición."}
 ];
@@ -466,3 +470,7 @@ function evaluateMathExpression(source){
   function expression(){let v=term();while(tokens[i]==="+"||tokens[i]==="-"){const op=tokens[i++],r=term();v=op==="+"?v+r:v-r;}return v;}
   try{const value=expression();return i===tokens.length&&Number.isFinite(value)?value:null;}catch(_){return null;}
 }
+
+
+function palindromeGame(){const qs=[{q:"¿Cuál de estas palabras es un palíndromo?",a:"reconocer",opts:["camino","reconocer","ventana"]},{q:"¿Qué palabra se lee igual de izquierda a derecha y al revés?",a:"radar",opts:["radar","rueda","carta"]},{q:"¿Cuál de estas opciones es un palíndromo?",a:"somos",opts:["silla","somos","soles"]}];quizGame("Palíndromos","Identifica palabras que se leen igual en ambos sentidos.",qs,55);}
+function wordChainGame(){const chain=[{start:"CASA",next:"SÁBADO",hint:"Empieza con la última sílaba de CASA: SA."},{start:"LUNA",next:"NARANJA",hint:"Empieza con la última sílaba de LUNA: NA."},{start:"CAMINO",next:"NOVELA",hint:"Empieza con la última sílaba de CAMINO: NO."}];let i=0;setGame("Cadena de palabras","Encuentra una palabra que comience con la última sílaba de la palabra mostrada.",'<div class="game-meta"><span>Ronda <b id="chain-index">1</b>/3</span><span>20 puntos</span></div><div class="word-scramble" id="chain-word"></div><p class="game-hint" id="chain-hint"></p>'+textAnswerForm("Escribe una palabra"));const render=()=>{if(i>=chain.length){finishSimpleGame("¡Cadena completada!","Has conectado las tres palabras.");return;}document.querySelector("#chain-index").textContent=i+1;document.querySelector("#chain-word").textContent=chain[i].start;document.querySelector("#chain-hint").textContent=chain[i].hint;document.querySelector("#text-answer").value="";};document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(chain[i].next)){addPoints(20);i++;render();}else document.querySelector("#text-feedback").textContent="La palabra no coincide con la cadena propuesta. Prueba otra.";});render();}
