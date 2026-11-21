@@ -474,3 +474,195 @@ function evaluateMathExpression(source){
 
 function palindromeGame(){const qs=[{q:"¿Cuál de estas palabras es un palíndromo?",a:"reconocer",opts:["camino","reconocer","ventana"]},{q:"¿Qué palabra se lee igual de izquierda a derecha y al revés?",a:"radar",opts:["radar","rueda","carta"]},{q:"¿Cuál de estas opciones es un palíndromo?",a:"somos",opts:["silla","somos","soles"]}];quizGame("Palíndromos","Identifica palabras que se leen igual en ambos sentidos.",qs,55);}
 function wordChainGame(){const chain=[{start:"CASA",next:"SÁBADO",hint:"Empieza con la última sílaba de CASA: SA."},{start:"LUNA",next:"NARANJA",hint:"Empieza con la última sílaba de LUNA: NA."},{start:"CAMINO",next:"NOVELA",hint:"Empieza con la última sílaba de CAMINO: NO."}];let i=0;setGame("Cadena de palabras","Encuentra una palabra que comience con la última sílaba de la palabra mostrada.",'<div class="game-meta"><span>Ronda <b id="chain-index">1</b>/3</span><span>20 puntos</span></div><div class="word-scramble" id="chain-word"></div><p class="game-hint" id="chain-hint"></p>'+textAnswerForm("Escribe una palabra"));const render=()=>{if(i>=chain.length){finishSimpleGame("¡Cadena completada!","Has conectado las tres palabras.");return;}document.querySelector("#chain-index").textContent=i+1;document.querySelector("#chain-word").textContent=chain[i].start;document.querySelector("#chain-hint").textContent=chain[i].hint;document.querySelector("#text-answer").value="";};document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(chain[i].next)){addPoints(20);i++;render();}else document.querySelector("#text-feedback").textContent="La palabra no coincide con la cadena propuesta. Prueba otra.";});render();}
+
+
+/* JUEGAMENTE 0.4 — deeper word puzzles, 4x4 category connections, story maths */
+const previousOpenGameV04 = openGame;
+categoryHubs.logic.items.push(["crossword","Crucigrama","Cruza palabras con pistas horizontales y verticales","▦"]);
+categoryHubs.daily.items = [
+  ["dailywords","Palabra del día · Misterio","Descubre la palabra con pistas graduales","?"],
+  ["wordguess","Palabra del día · Intentos","Deduce la palabra y analiza tus letras","Aa"],
+  ["wordriddle","Palabra del día · Enigma","Resuelve una definición con doble sentido","◇"],
+  ["crossword","Crucigrama","Completa la cuadrícula con pistas cruzadas","▦"],
+  ["anagram","Anagrama contrarreloj","Reordena letras bajo presión","↔"]
+];
+const oldDailyItems = categoryHubs.daily.items;
+categoryHubs.daily.intro = "Cinco retos de vocabulario. Descubre palabras por pistas, lógica y cruces.";
+const oldLogicIntro = categoryHubs.logic.intro;
+categoryHubs.logic.intro = "Conecta conceptos, interpreta dobles sentidos y descubre patrones que no se ven a primera vista.";
+const oldOddIntro = categoryHubs.logic.items.find(x=>x[0]==="oddword");
+if(oldOddIntro) oldOddIntro[2]="Conecta cuatro palabras de una misma familia semántica en un tablero 4×4";
+
+openGame = function(id) {
+  if(id==="wordguess"){wordGuessGame();return;}
+  if(id==="wordriddle"){wordRiddleGame();return;}
+  if(id==="crossword"){crosswordGame();return;}
+  previousOpenGameV04(id);
+};
+
+const connectionSets = [
+  {category:"Frutas",words:["Níspero","Kumquat","Membrillo","Pomelo"]},
+  {category:"Verduras",words:["Chirivía","Colinabo","Endibia","Acelga"]},
+  {category:"Hierbas aromáticas",words:["Perifollo","Mejorana","Estragón","Eneldo"]},
+  {category:"Infusiones",words:["Rooibos","Matcha","Chai","Tisana"]}
+];
+function oddWordGame(){
+  const tiles=connectionSets.flatMap((group,g)=>group.words.map(word=>({word,group:g}))).sort(()=>Math.random()-.5);
+  let selected=[],solved=[],mistakes=0;
+  setGame("Palabra intrusa","Hay 16 palabras y cuatro familias ocultas. Selecciona cuatro que pertenezcan a la misma categoría y conéctalas. Al acertar, descubrirás su nombre.",'<div class="connection-status"><span id="connection-progress">0 de 4 categorías descubiertas</span><span>Errores: <b id="connection-errors">0</b>/4</span></div><div class="connection-grid" id="connection-grid"></div><div class="connection-controls"><span id="connection-selected">Selecciona cuatro palabras</span><button class="math-check" id="connection-check" type="button" disabled>Conectar grupo</button></div><p class="game-hint" id="connection-feedback" aria-live="polite"></p><div id="connection-solved" class="connection-solved"></div>');
+  const grid=document.querySelector("#connection-grid");
+  const render=()=>{
+    grid.innerHTML="";
+    tiles.forEach((tile,index)=>{
+      if(solved.includes(tile.group))return;
+      const b=document.createElement("button");b.type="button";b.className="connection-tile"+(selected.includes(index)?" selected":"");b.textContent=tile.word;b.setAttribute("aria-pressed",selected.includes(index)?"true":"false");
+      b.addEventListener("click",()=>{
+        if(selected.includes(index)){selected=selected.filter(x=>x!==index);}
+        else if(selected.length<4)selected.push(index);
+        document.querySelector("#connection-selected").textContent=selected.length===4?"Cuatro elegidas. ¿Forman una familia?":selected.length+" de 4 palabras seleccionadas";
+        document.querySelector("#connection-check").disabled=selected.length!==4;
+        render();
+      });
+      grid.appendChild(b);
+    });
+  };
+  document.querySelector("#connection-check").addEventListener("click",()=>{
+    if(selected.length!==4)return;
+    const groups=selected.map(i=>tiles[i].group);
+    if(groups.every(g=>g===groups[0])&&!solved.includes(groups[0])){
+      const group=groups[0];solved.push(group);addPoints(40);
+      const reveal=document.createElement("div");reveal.className="connection-reveal";reveal.innerHTML="<b>"+connectionSets[group].category+"</b><span>"+connectionSets[group].words.join(" · ")+"</span>";
+      document.querySelector("#connection-solved").appendChild(reveal);
+      document.querySelector("#connection-feedback").textContent="¡Conexión descubierta! La categoría era "+connectionSets[group].category+".";
+      selected=[];document.querySelector("#connection-selected").textContent="Grupo revelado";
+      document.querySelector("#connection-check").disabled=true;
+      document.querySelector("#connection-progress").textContent=solved.length+" de 4 categorías descubiertas";
+      render();
+      if(solved.length===4)showResult("¡Conectaste las 4 familias!","Has clasificado las 16 palabras y descubierto todas las categorías.");
+    }else{
+      mistakes++;document.querySelector("#connection-errors").textContent=mistakes;
+      document.querySelector("#connection-feedback").textContent="Estas cuatro palabras no pertenecen todas a la misma familia. Observa sus significados y posibles usos.";
+      selected=[];document.querySelector("#connection-selected").textContent="Vuelve a intentarlo";
+      document.querySelector("#connection-check").disabled=true;render();
+      if(mistakes>=4){document.querySelector("#connection-feedback").textContent="Se acabaron los intentos. Puedes seguir jugando, pero el reto ya no dará bonificación perfecta.";}
+    }
+  });
+  render();
+}
+
+const crypticWordChallenges=[
+  {clue:"Un recipiente que conserva el calor se une a una unidad de medida. ¿Qué instrumento resulta?",answer:"termometro",parts:"TERMO + METRO",explain:"TERMO (conserva la temperatura) + METRO (medida) forman TERMÓMETRO.",hint:"Piensa en un objeto que guarda calor y algo que sirve para medir."},
+  {clue:"Cuando el reloj avanza, algo pasa; cuando tienes un rato libre, también puedes tenerlo. ¿Qué palabra une ambas ideas?",answer:"pasatiempo",parts:"PASA + TIEMPO",explain:"PASA + TIEMPO forman PASATIEMPO: actividad para entretenerse.",hint:"La respuesta puede ser una actividad para entretenerse."},
+  {clue:"No es una persona que salva, ni son vidas separadas: es lo que puede mantenerte a flote en el agua.",answer:"salvavidas",parts:"SALVA + VIDAS",explain:"SALVA + VIDAS forman SALVAVIDAS.",hint:"Se encuentra en playas, piscinas y embarcaciones."},
+  {clue:"Piensa en lo que haces cuando llega una fecha especial y en el número de años que celebras.",answer:"cumpleaños",parts:"CUMPLE + AÑOS",explain:"CUMPLE + AÑOS forman CUMPLEAÑOS.",hint:"Una celebración que ocurre una vez cada año."},
+  {clue:"Lo que hace un paraguas con el agua que cae del cielo. Junta la acción con aquello que detiene.",answer:"paraguas",parts:"PARA + AGUAS",explain:"PARA + AGUAS forman PARAGUAS.",hint:"Lo abres cuando llueve."}
+];
+function cryptogramGame(){
+  let index=0,correct=0,revealed=false;
+  const deck=[...crypticWordChallenges].sort(()=>Math.random()-.5);
+  setGame("Criptogramas de palabras","No hay letras desplazadas. Cada pista es un pequeño acertijo: interpreta las partes, los dobles sentidos y la definición para descubrir una palabra compuesta.",'<div class="game-meta"><span>Enigma <b id="crypto-index">1</b>/5</span><span>+30 puntos por solución</span></div><div class="cryptic-card"><span class="cryptic-label">PISTA CRÍPTICA</span><p id="cryptic-clue"></p></div><div class="cryptic-hint-row"><button type="button" class="hub-back" id="cryptic-hint">Pedir una pista (sin puntos)</button><button type="button" class="hub-back" id="cryptic-reveal">Ver construcción</button></div><p class="game-hint" id="cryptic-extra" aria-live="polite"></p>'+textAnswerForm("Escribe la palabra que se forma"));
+  const render=()=>{if(index>=deck.length){showResult("¡Descifraste las palabras!","Respuestas correctas: "+correct+" de 5. Cada pista exigía interpretar el significado.");return;}revealed=false;document.querySelector("#crypto-index").textContent=index+1;document.querySelector("#cryptic-clue").textContent=deck[index].clue;document.querySelector("#cryptic-extra").textContent="";document.querySelector("#text-answer").value="";};
+  document.querySelector("#cryptic-hint").addEventListener("click",()=>{document.querySelector("#cryptic-extra").textContent=deck[index].hint;});
+  document.querySelector("#cryptic-reveal").addEventListener("click",()=>{revealed=true;document.querySelector("#cryptic-extra").textContent="Construcción: "+deck[index].parts+". "+deck[index].explain;});
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(deck[index].answer)){if(!revealed){addPoints(30);correct++;}else correct++;document.querySelector("#text-feedback").textContent="¡Exacto! "+deck[index].explain;setTimeout(()=>{index++;render();},1500);}else document.querySelector("#text-feedback").textContent="No coincide. Piensa en las dos ideas que se esconden dentro de la pista.";});
+  render();
+}
+
+const wordOfDayPuzzles=[
+  {word:"laberinto",clues:["No siempre tiene paredes, pero puede hacerte perder el rumbo.","Tiene caminos, bifurcaciones y una salida que debes encontrar.","Empieza por L y termina en O."],definition:"Un recorrido complejo con caminos y pasajes que confunden."},
+  {word:"brujula",clues:["No te dice dónde estás, sino hacia dónde orientar tus pasos.","Su aguja busca una dirección constante.","Tiene ocho letras y comienza por B."],definition:"Instrumento que señala el norte magnético."},
+  {word:"paradoja",clues:["Parece contradecirse, pero invita a pensar.","Puede ser una afirmación aparentemente imposible.","Tiene ocho letras y comienza por P."],definition:"Idea que contiene una contradicción aparente."},
+  {word:"umbral",clues:["Puedes cruzarlo sin salir de una habitación.","Marca el comienzo o la entrada de algo.","Tiene seis letras y empieza por U."],definition:"Entrada o límite que da paso a otro espacio o estado."},
+  {word:"efimero",clues:["Su duración es tan corta que puede desaparecer antes de apreciarlo.","Se opone a lo permanente.","Tiene siete letras y comienza por E."],definition:"Algo que dura muy poco tiempo."}
+];
+function wordGuessGame(){
+  const puzzle=wordOfDayPuzzles[Math.floor((Date.now()/86400000)%wordOfDayPuzzles.length)];
+  const answer=puzzle.word;let tries=0,won=false,history=[];
+  setGame("Palabra del día · Intentos","Adivina la palabra oculta. Tienes seis intentos. Las letras verdes están en el lugar correcto; las doradas aparecen en otra posición.",'<div class="game-meta"><span>Intentos <b id="word-tries">0</b>/6</span><span>Longitud: '+answer.length+' letras</span></div><div class="word-guess-board" id="word-guess-board"></div>'+textAnswerForm("Escribe una palabra de "+answer.length+" letras"));
+  const board=document.querySelector("#word-guess-board");
+  const render=()=>{board.innerHTML="";history.forEach(row=>{const line=document.createElement("div");line.className="word-guess-row";row.forEach((letter,i)=>{const cell=document.createElement("span");cell.className="word-guess-cell "+(letter===answer[i]?"exact":answer.includes(letter)?"present":"absent");cell.textContent=letter.toUpperCase();line.appendChild(cell);});board.appendChild(line);});};
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(won||tries>=6)return;const guess=normText(document.querySelector("#text-answer").value);if(guess.length!==answer.length){document.querySelector("#text-feedback").textContent="La palabra debe tener exactamente "+answer.length+" letras.";return;}tries++;document.querySelector("#word-tries").textContent=tries;history.push(guess.split(""));render();if(guess===answer){won=true;addPoints(50);document.querySelector("#text-feedback").textContent="¡La encontraste! "+puzzle.definition;showResult("¡Palabra descubierta!","La palabra era "+answer.toUpperCase()+".");}else if(tries===6){document.querySelector("#text-feedback").textContent="Se acabaron los intentos. La palabra era "+answer.toUpperCase()+".";showResult("Fin de los intentos","La palabra era "+answer.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No es esa. Observa las posiciones y prueba otra palabra.";document.querySelector("#text-answer").value="";});
+}
+function dailyWordGame(){wordRiddleGame();}
+function wordRiddleGame(){
+  const puzzle=wordOfDayPuzzles[Math.floor((Date.now()/86400000)%wordOfDayPuzzles.length)];
+  let clue=0,usedHint=false;
+  setGame("Palabra del día · Enigma","Resuelve una definición ambigua. Puedes pedir pistas, pero cada pista reduce la puntuación.",'<div class="game-meta"><span>Pistas usadas: <b id="word-hints">0</b>/3</span><span>Premio máximo: 45 puntos</span></div><div class="cryptic-card"><span class="cryptic-label">ENIGMA DEL DÍA</span><p id="word-riddle-clue"></p></div><button type="button" class="hub-back" id="word-next-hint">Revelar siguiente pista</button>'+textAnswerForm("¿Qué palabra es?"));
+  const clueNode=document.querySelector("#word-riddle-clue");clueNode.textContent=puzzle.clues[0];
+  document.querySelector("#word-next-hint").addEventListener("click",()=>{if(clue<2){clue++;usedHint=true;document.querySelector("#word-hints").textContent=clue;clueNode.textContent=puzzle.clues[clue];}});
+  document.querySelector("#text-answer-form").addEventListener("submit",e=>{e.preventDefault();if(normText(document.querySelector("#text-answer").value)===normText(puzzle.word)){addPoints(usedHint?15:45);document.querySelector("#text-feedback").textContent="¡Correcto! "+puzzle.definition;showResult("¡Enigma resuelto!","La palabra era "+puzzle.word.toUpperCase()+".");}else document.querySelector("#text-feedback").textContent="No es esa. Busca una palabra que encaje con todas las pistas.";});
+}
+function crosswordGame(){
+  const entries=[
+    {word:"CASA",dir:"across",row:0,col:0,num:1,clue:"Lugar donde vive una familia."},
+    {word:"AVE",dir:"down",row:0,col:1,num:2,clue:"Animal con plumas, pico y alas."},
+    {word:"ECO",dir:"across",row:2,col:1,num:3,clue:"Repetición de un sonido."},
+    {word:"AROS",dir:"down",row:0,col:3,num:4,clue:"Anillos que se usan como adorno."}
+  ];
+  const cells={};entries.forEach(entry=>[...entry.word].forEach((letter,i)=>{const r=entry.row+(entry.dir==="down"?i:0),c=entry.col+(entry.dir==="across"?i:0),key=r+"-"+c;if(!cells[key])cells[key]={letter,number:[],across:false,down:false};cells[key].number.push(entry.num);cells[key][entry.dir]=true;}));
+  setGame("Crucigrama","Completa las palabras horizontales y verticales. Las respuestas se cruzan: una letra correcta puede ayudarte a resolver otra palabra.",'<div class="crossword-layout"><div class="crossword-board" id="crossword-board"></div><div class="crossword-clues"><b>Horizontales</b><ol id="cross-across"></ol><b>Verticales</b><ol id="cross-down"></ol><button class="math-check" type="button" id="cross-check">Comprobar crucigrama</button><p class="game-hint" id="cross-feedback"></p></div></div>');
+  const board=document.querySelector("#crossword-board");
+  for(let r=0;r<4;r++)for(let c=0;c<4;c++){
+    const key=r+"-"+c,cell=cells[key];
+    const el=document.createElement("div");el.className="crossword-cell"+(cell?"":" blocked");
+    if(cell){const n=document.createElement("small");n.textContent=cell.number[0];el.appendChild(n);const input=document.createElement("input");input.maxLength=1;input.dataset.key=key;input.setAttribute("aria-label","Fila "+(r+1)+", columna "+(c+1));input.autocomplete="off";input.addEventListener("input",()=>{input.value=normText(input.value).slice(-1).toUpperCase();});el.appendChild(input);}
+    board.appendChild(el);
+  }
+  entries.forEach(entry=>{const li=document.createElement("li");li.textContent=entry.num+". "+entry.clue;document.querySelector(entry.dir==="across"?"#cross-across":"#cross-down").appendChild(li);});
+  document.querySelector("#cross-check").addEventListener("click",()=>{let correct=0;entries.forEach(entry=>{const value=[...entry.word].map((_,i)=>{const r=entry.row+(entry.dir==="down"?i:0),c=entry.col+(entry.dir==="across"?i:0);return board.querySelector('[data-key="'+r+'-'+c+'"]').value;}).join("");if(value===entry.word)correct++;});document.querySelector("#cross-feedback").textContent=correct+" de 4 palabras correctas.";if(correct===4){addPoints(60);showResult("¡Crucigrama resuelto!","Completaste las cuatro palabras cruzadas.");}});
+}
+
+const storyMath = [
+[
+{q:"En la cocina, Pepito tenía 14 manzanas para preparar colaciones. Ana tomó 6 para su grupo y después la profesora dejó otras 3 en la mesa. ¿Cuántas manzanas quedaron para Pepito?",a:"11",ex:"14 − 6 + 3 = 11 manzanas."},
+{q:"Una caja contiene 8 paquetes con 5 lápices cada uno. Durante la clase se reparten 13 lápices. ¿Cuántos lápices quedan?",a:"27",ex:"8 × 5 = 40; 40 − 13 = 27 lápices."},
+{q:"En una excursión, 23 estudiantes suben a un bus. En la siguiente parada bajan 7 y suben 4. ¿Cuántos estudiantes continúan?",a:"20",ex:"23 − 7 + 4 = 20 estudiantes."}
+],
+[
+{q:"Una cuadrilla instala 7 filas de baldosas con 8 piezas en cada fila. Se rompen 9 durante el traslado. ¿Cuántas piezas utilizables quedan?",a:"47",ex:"7 × 8 = 56; 56 − 9 = 47."},
+{q:"Un depósito de 96 litros se reparte por igual entre 8 estanques. Luego cada estanque recibe 3 litros adicionales. ¿Cuántos litros tiene cada uno?",a:"15",ex:"96 ÷ 8 = 12; 12 + 3 = 15 litros."},
+{q:"Una compra cuesta $18.000 y se paga en 3 cuotas iguales. A cada cuota se agregan $1.500 de despacho. ¿Cuál es el total de una cuota?",a:"7500",ex:"18.000 ÷ 3 = 6.000; 6.000 + 1.500 = 7.500."}
+],
+[
+{q:"Una tienda recibe 80 sacos de cemento. Vende el 25% durante la mañana y 18 sacos por la tarde. ¿Cuántos sacos quedan?",a:"42",ex:"25% de 80 = 20; 80 − 20 − 18 = 42."},
+{q:"Una receta usa 3/4 de litro de leche. Si se prepara el doble y luego se utiliza 1/2 litro, ¿cuánta leche queda?",a:"1",ex:"2 × 3/4 = 1,5; 1,5 − 0,5 = 1 litro."},
+{q:"Un plano representa 4 metros reales con 2 centímetros. Si un muro mide 7,5 centímetros en el plano, ¿cuántos metros representa?",a:"15",ex:"La escala equivale a 2 m por centímetro; 7,5 × 2 = 15 m."}
+],
+[
+{q:"Una empresa cobra $5.000 de visita y $2.500 por cada hora de trabajo. Si una reparación costó $17.500, ¿cuántas horas se trabajó?",a:"5",ex:"17.500 − 5.000 = 12.500; 12.500 ÷ 2.500 = 5 horas."},
+{q:"Un estanque tenía x litros. Se utilizaron 18 litros y quedaron 27. ¿Cuántos litros tenía al comienzo?",a:"45",ex:"x − 18 = 27; x = 27 + 18 = 45 litros."},
+{q:"El largo de un terreno rectangular mide el doble del ancho. Su perímetro es 36 metros. ¿Cuánto mide el ancho?",a:"6",ex:"2(2x + x) = 36; 6x = 36; x = 6 m."}
+],
+[
+{q:"Una colonia de bacterias se duplica cada hora. Si comienza con 3 bacterias, ¿cuántas habrá después de 4 horas?",a:"48",ex:"3 × 2⁴ = 3 × 16 = 48."},
+{q:"Una escalera tiene 10 peldaños de igual altura. Cada uno mide √(0,36) metros. ¿Cuál es la altura total?",a:"6",ex:"√0,36 = 0,6 m; 10 × 0,6 = 6 m."},
+{q:"Un terreno cuadrado tiene una superficie de 196 m². ¿Cuánto mide cada lado?",a:"14",ex:"√196 = 14 metros."}
+],
+[
+{q:"Una población de microorganismos sigue el modelo P(t)=500·2ᵗ. ¿Cuántos microorganismos habrá cuando t=3?",a:"4000",ex:"P(3)=500 × 2³ = 500 × 8 = 4.000."},
+{q:"El nivel de ruido se modela con L=10 log₁₀(I/I₀). Si I/I₀=1000, ¿cuál es L?",a:"30",ex:"log₁₀(1000)=3; L=10 × 3=30."},
+{q:"Una máquina pierde valor según V(t)=120000·(0,9)ᵗ. ¿Cuál será su valor después de 2 periodos? Responde en miles.",a:"97.2",ex:"120 × 0,9² = 120 × 0,81 = 97,2 miles."}
+],
+[
+{q:"Una rampa forma un triángulo rectángulo. Su longitud inclinada es 10 m y el ángulo con el suelo es 30°. ¿Qué altura alcanza? (sen 30°=0,5)",a:"5",ex:"Altura = 10 × sen 30° = 10 × 0,5 = 5 m."},
+{q:"Desde un punto situado a 12 m de un edificio se observa la cima con un ángulo de 45°. ¿Qué altura tiene el edificio si tan 45°=1?",a:"12",ex:"tan 45° = altura/12 = 1; altura = 12 m."},
+{q:"Un cable de 20 m forma un ángulo de 60° con el suelo. ¿Qué distancia horizontal cubre? (cos 60°=0,5)",a:"10",ex:"Distancia horizontal = 20 × cos 60° = 10 m."}
+],
+[
+{q:"La velocidad de una partícula es v(t)=3t². ¿Qué aceleración tiene en t=4? (La aceleración es la derivada de v.)",a:"24",ex:"a(t)=v'(t)=6t; a(4)=24."},
+{q:"El costo marginal de producir x unidades es C'(x)=2x+4. ¿Cuál es el aumento de costo entre x=0 y x=3?",a:"21",ex:"∫₀³(2x+4)dx = [x²+4x]₀³ = 9+12 = 21."},
+{q:"Un objeto se mueve con posición s(t)=t²+2t. ¿Cuál es su velocidad instantánea cuando t=5?",a:"12",ex:"s'(t)=2t+2; s'(5)=12."}
+]
+];
+function mathLevelGame(level){
+  const data=mathLevels[level],questions=storyMath[level];let index=0,correct=0;
+  setGame("Matemáticas · "+data.title,"Lee el caso, identifica los datos relevantes y resuelve el problema. Puedes desarrollar todo en la pizarra.",'<div class="math-progress"><span>Nivel '+(level+1)+' de 8</span><span>Problema <b id="math-index">1</b>/3</span></div><div class="math-story-card"><span>PROBLEMA CONTEXTUALIZADO</span><p id="math-question"></p></div><div class="math-workspace math-workspace-wide"><div class="math-board-area math-board-large"><div class="board-heading"><b>Tu pizarra de desarrollo</b><button type="button" id="clear-board">Limpiar</button></div><canvas id="math-board" aria-label="Pizarra amplia para desarrollar el problema"></canvas><small>Desarrolla operaciones, esquemas, ecuaciones o dibujos. Puedes usar mouse o dedo.</small></div><div class="math-input-area math-answer-side"><label for="math-answer">Tu respuesta final</label><math-field id="math-answer" virtual-keyboard-mode="manual" smart-fence></math-field><div class="math-symbol-row"><button type="button" data-insert="\\frac{#@}{#?}">a/b</button><button type="button" data-insert="^{#?}">x²</button><button type="button" data-insert="\\sqrt{#0}">√</button><button type="button" data-insert="\\pi">π</button><button type="button" data-insert="\\log\\left(#0\\right)">log</button><button type="button" data-insert="\\sin\\left(#0\\right)">sen</button><button type="button" data-insert="\\cdot">·</button><button type="button" data-insert="\\le">≤</button><button type="button" data-insert="\\infty">∞</button></div><div class="math-actions"><button type="button" class="math-keyboard" id="show-math-keyboard">⌨ Teclado matemático</button><button type="button" class="math-check" id="check-math">Comprobar</button></div><p class="math-feedback" id="math-feedback" aria-live="polite"></p></div></div><div class="math-explanation" id="math-explanation" hidden></div><div class="math-level-footer"><button type="button" class="hub-back" id="math-level-back">← Volver a niveles</button><span>Los ejercicios se vuelven más complejos en cada nivel.</span></div>');
+  const field=document.querySelector("#math-answer"),feedback=document.querySelector("#math-feedback");
+  const render=()=>{if(index>=questions.length){if(correct>=2){const next=Math.min(7,level+1);localStorage.setItem("juegamente-math-unlocked",String(Math.max(Number(localStorage.getItem("juegamente-math-unlocked")||0),next)));}showResult("¡Nivel completado!","Respuestas correctas: "+correct+" de 3. "+(correct>=2&&level<7?"Has desbloqueado el siguiente nivel.":"Puedes volver a practicar para mejorar."));const back=document.createElement("button");back.className="hub-back";back.textContent="← Volver a niveles";back.addEventListener("click",()=>renderCategoryHub("math"));gameContent.appendChild(back);return;}document.querySelector("#math-index").textContent=index+1;document.querySelector("#math-question").textContent=questions[index].q;field.value="";feedback.textContent="";document.querySelector("#math-explanation").hidden=true;const ctx=document.querySelector("#math-board").getContext("2d");ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);};
+  document.querySelectorAll("[data-insert]").forEach(b=>b.addEventListener("click",()=>{field.focus();field.executeCommand(["insert",b.dataset.insert]);}));
+  document.querySelector("#show-math-keyboard").addEventListener("click",()=>{field.focus();if(window.mathVirtualKeyboard){window.mathVirtualKeyboard.layouts=["numeric","symbols","alphabetic","greek"];window.mathVirtualKeyboard.show();}});
+  document.querySelector("#check-math").addEventListener("click",()=>{const raw=field.getValue("ascii-math").trim(),normalized=raw.replace(/\s/g,"").replace(/,/g,".").replace(/[{}]/g,"").toLowerCase(),expected=questions[index].a,n=evaluateMathExpression(normalized),correctAnswer=normalized===expected|| (n!==null&&Math.abs(n-Number(expected))<0.0001);if(!correctAnswer){feedback.textContent="No coincide todavía. Revisa los datos del problema y tu desarrollo.";feedback.className="math-feedback bad";return;}correct++;addPoints(25);feedback.textContent="¡Correcto! +25 puntos";feedback.className="math-feedback good";const ex=document.querySelector("#math-explanation");ex.hidden=false;ex.textContent="Desarrollo orientativo: "+questions[index].ex;setTimeout(()=>{index++;render();},1900);});
+  document.querySelector("#math-level-back").addEventListener("click",()=>renderCategoryHub("math"));
+  setupMathBoard();
+  render();
+}
